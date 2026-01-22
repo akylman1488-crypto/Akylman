@@ -8,7 +8,7 @@ st.set_page_config(page_title="AKYLMAN", page_icon="🇰🇬", layout="wide")
 st.markdown("""
     <style>
     [data-testid="stAppViewContainer"] {
-        background-image: url("https://dribbble.com/shots/23472605-Akylman-Presidential-School");
+        background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
