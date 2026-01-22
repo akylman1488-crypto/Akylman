@@ -130,7 +130,7 @@ for message in st.session_state.messages:
 import datetime
 from duckduckgo_search import DDGS
 
-if prompt := st.chat_input("Спросите PULSAR-X..."):
+if prompt := st.chat_input("Спросите у AKYLMAN..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
