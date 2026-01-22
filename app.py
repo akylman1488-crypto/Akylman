@@ -76,7 +76,7 @@ st.markdown("""
     </script>
     """, unsafe_allow_html=True)
 
-MEMORY_FILE = akylman_experience.txt"
+MEMORY_FILE = "akylman_experience.txt"
 
 def get_experience():
     if os.path.exists(MEMORY_FILE):
