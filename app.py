@@ -9,7 +9,7 @@ st.set_page_config(page_title="AKYLMAN", layout="wide")
 st.markdown("""
     <style>
     [data-testid="stAppViewContainer"] {
-        background-image: url("https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1200&auto=format&fit=crop");
+        background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -17,12 +17,12 @@ st.markdown("""
     [data-testid="stChatMessage"] *, .stMarkdown * {
         color: white !important;
         -webkit-text-fill-color: white !important;
-        text-shadow: 1px 1px 2px white !important;
+        text-shadow: 1px 1px 2px black !important;
     }
     [data-testid="stSidebar"] { background-color: white !important; }
     [data-testid="stSidebar"] * { color: black !important; }
     [data-testid="stChatInput"] { background-color: white !important; border: 2px solid black !important; }
-    [data-testid="stChatInput"] textarea { color: black !important; }
+    [data-testid="stChatInput"] textarea { color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
