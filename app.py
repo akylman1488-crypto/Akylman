@@ -185,7 +185,7 @@ try:
             response_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
             
-        except Exception as e:
+        except Exception as e(
             if "rate_limit" in str(e).lower():
                 st.error("🛑 Лимит запросов исчерпан. Подождите 60 секунд перед следующим вопросом.")
             else:
