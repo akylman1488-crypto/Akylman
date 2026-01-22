@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 from PyPDF2 import PdfReader
 
-st.set_page_config(page_title="PULSAR-X GLOBAL", page_icon="🛰️", layout="wide")
+st.set_page_config(page_title="AKYLMAN", layout="wide")
 
 st.markdown("""
     <style>
@@ -17,7 +17,7 @@ st.markdown("""
     [data-testid="stChatMessage"] *, .stMarkdown * {
         color: white !important;
         -webkit-text-fill-color: white !important;
-        text-shadow: 1px 1px 2px black !important;
+        text-shadow: 1px 1px 2px white !important;
     }
     [data-testid="stSidebar"] { background-color: white !important; }
     [data-testid="stSidebar"] * { color: black !important; }
@@ -57,7 +57,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Спросите PULSAR-X..."):
+if prompt := st.chat_input("Спросите AKYLMAN..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -67,7 +67,7 @@ if prompt := st.chat_input("Спросите PULSAR-X..."):
         full_response = ""
     
         sys_msg = (
-            f"Ты PULSAR-X GLOBAL (Исанур). Дата: {datetime.datetime.now().date()}. "
+            f"Ты AKYLMAN (Исанур). Дата: {datetime.datetime.now().date()}. "
             "АКТИВИРОВАНЫ: Логика, Код, Анализ нот/данных, Мультиязычность. "
             f"КОНТЕКСТ: {st.session_state.doc_context[:1000]}"
         )
