@@ -39,11 +39,11 @@ st.markdown("""
 
     [data-testid="stChatInput"] {
         background-color: white !important;
-        border: 2px solid black !important;
+        border: 2px solid white !important;
     }
     [data-testid="stChatInput"] textarea {
         color: black !important;
-        -webkit-text-fill-color: black !important;
+        -webkit-text-fill-color: white !important;
     }
 
     header, [data-testid="stHeader"], [data-testid="stBottom"] > div {
