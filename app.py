@@ -77,14 +77,17 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
             response_placeholder = st.empty()
-            response_placeholder.markdown("🎨 Рисую...")
-            
+            response_placeholder.markdown("🎨 **АКЫЛМАН создает шедевр...**")
+
             clean_prompt = prompt.lower().replace("нарисуй", "").strip()
+            # Кодируем для URL
             encoded_prompt = urllib.parse.quote(clean_prompt)
+            # Прямая ссылка на генератор
             image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed=42&model=flux"
+
+            st.image(image_url, caption=f"Результат для: {clean_prompt}", use_container_width=True)
             
-            st.image(image_url)
-            full_response = f"Готово! Рисунок по запросу: {clean_prompt}"
+            full_response = f"Готово! Я подготовил рисунок по твоему запросу: '{clean_prompt}'"
             st.session_state.messages.append({"role": "assistant", "content": full_response, "image_url": image_url})
             response_placeholder.markdown(full_response)
         else:
