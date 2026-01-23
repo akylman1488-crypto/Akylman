@@ -107,10 +107,13 @@ if "doc_context" not in st.session_state:
 
 with st.sidebar:
     image_file = st.file_uploader("Задача на изображении (PNG/JPG)", type=["png", "jpg", "jpeg"])
+
 if image_file:
     image = Image.open(image_file)
     st.image(image, use_container_width=True)
     st.session_state.image_context = image_to_base64(image)
+else:
+    st.session_state.image_context = None
 
     if os.path.exists("logo.png"):
         st.image("logo.png", use_container_width=True)
