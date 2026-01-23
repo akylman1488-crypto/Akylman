@@ -34,14 +34,32 @@ if "messages" not in st.session_state:
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
-try:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-pro')
-except Exception as e:
-    st.error(f"API Error: {e}")
-
 with st.sidebar:
-    st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
+    st.title("🎛️ УПРАВЛЕНИЕ")
+    
+    # СЕКРЕТНЫЙ ПАРОЛЬ (можешь поменять '1234' на свой)
+    CORRECT_PASSWORD = "1234"
+    
+    user_password = st.text_input("Введите пароль для доступа к Pro:", type="password")
+    
+    if user_password == CORRECT_PASSWORD:
+        st.success("Доступ к Pro открыт! ✅")
+        available_modes = ["🚀 Быстрая (Flash)", "🤔 Думающая (Pro)", "💎 Plus (1.5 Pro)"]
+    else:
+        if user_password:
+            st.error("Неверный пароль")
+        available_modes = ["🚀 Быстрая (Flash)"]
+    
+    version = st.selectbox("Версия АКЫЛМАНА:", available_modes)
+    
+    model_mapping = {
+        "🚀 Быстрая (Flash)": "gemini-1.5-flash",
+        "🤔 Думающая (Pro)": "gemini-1.0-pro",
+        "💎 Plus (1.5 Pro)": "gemini-1.5-pro"
+    }
+    
+    selected_model = model_mapping[version]
+
     uploaded_file = st.file_uploader("Материалы", type=["pdf", "txt", "csv"])
     if uploaded_file:
         try:
@@ -53,22 +71,28 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Готов.")
+            st.success("Данные загружены")
         except Exception as e:
             st.error(f"Error: {e}")
-    if st.button("🗑️ Очистить"):
+            
+    if st.button("🗑️ Очистить всё"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
         st.rerun()
 
-st.title("🧠 АКЫЛМАН AI")
+try:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel(selected_model)
+except Exception as e:
+    st.error(f"Ошибка: {e}")
+
+st.title(f"🧠 АКЫЛМАН AI ({version.split()[1]})")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
         if "image_url" in message:
-            st.image(message["image_url"])
-            st.markdown(f"[🔗 Открыть картинку в новом окне]({message['image_url']})")
+            st.markdown(f'<img src="{message["image_url"]}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -79,17 +103,11 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         if "нарисуй" in prompt.lower():
             response_placeholder = st.empty()
             response_placeholder.markdown("🎨 Рисую...")
-            
             clean_prompt = prompt.lower().replace("нарисуй", "").strip()
-            if not clean_prompt:
-                clean_prompt = "beautiful landscape"
-            
             encoded_prompt = urllib.parse.quote(clean_prompt)
             image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true"
-            
-            st.image(image_url)
-            full_response = f"Готово! Если картинка не видна, нажми на ссылку ниже. Запрос: {clean_prompt}"
-            st.markdown(f"[🔗 Ссылка на рисунок]({image_url})")
+            st.markdown(f'<img src="{image_url}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
+            full_response = f"Готово! Рисунок: {clean_prompt}"
             st.session_state.messages.append({"role": "assistant", "content": full_response, "image_url": image_url})
             response_placeholder.markdown(full_response)
         else:
@@ -102,7 +120,7 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                     search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
                 except: pass
 
-            sys_instr = f"Ты АКЫЛМАН. Помогай с учебой. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
+            sys_instr = f"Ты АКЫЛМАН ({version}). Помогай Исануру. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
             
             try:
                 response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
@@ -113,4 +131,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
-                st.error(f"Ошибка Gemini: {e}")
+                st.error(f"Лимит или ошибка: {e}")
