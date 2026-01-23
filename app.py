@@ -5,8 +5,9 @@ from openai import OpenAI
 from duckduckgo_search import DDGS
 import urllib.parse
 import time
+import datetime
 
-st.set_page_config(page_title="AKYLMAN ULTIMATE", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="AKYLMAN ULTIMATE AI", page_icon="🧠", layout="wide")
 
 st.markdown("""
     <style>
@@ -14,124 +15,124 @@ st.markdown("""
         background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
         background-size: cover; background-position: center; background-attachment: fixed;
     }
-    .stApp h1 { color: white !important; text-shadow: 3px 3px 10px #000 !important; font-size: 3rem !important; }
-    [data-testid="stChatMessage"] { background-color: rgba(0,0,0,0.6) !important; border-radius: 20px !important; margin-bottom: 10px !important; border: 1px solid rgba(255,255,255,0.1) !important; }
-    [data-testid="stChatMessage"] p, .stMarkdown, span, li { color: white !important; text-shadow: 1px 1px 3px black !important; }
-    [data-testid="stSidebar"] { background-color: rgba(255, 255, 255, 0.95) !important; box-shadow: 5px 0 15px rgba(0,0,0,0.5) !important; }
-    .stButton>button { width: 100%; border-radius: 10px; height: 3em; background-color: #1e1e1e; color: white; transition: 0.3s; }
-    .stButton>button:hover { background-color: #ff4b4b; border: none; }
-    [data-testid="stChatInput"] { background-color: white !important; border-radius: 20px !important; border: 2px solid #ff4b4b !important; }
+    .stApp h1 { color: white !important; text-shadow: 4px 4px 15px #000 !important; font-family: 'Arial Black', sans-serif; }
+    [data-testid="stChatMessage"] { background-color: rgba(15, 15, 15, 0.8) !important; border-radius: 25px !important; border: 1px solid #ff4b4b !important; }
+    [data-testid="stChatMessage"] p, .stMarkdown, span, li { color: #f0f0f0 !important; font-size: 1.1rem !important; }
+    [data-testid="stSidebar"] { background: rgba(255, 255, 255, 0.98) !important; border-right: 3px solid #ff4b4b !important; }
+    .stChatInputContainer { padding-bottom: 20px !important; }
+    .stButton>button { background: linear-gradient(45deg, #1e1e1e, #ff4b4b); color: white; border: none; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
 if "messages" not in st.session_state: st.session_state.messages = []
 if "doc_context" not in st.session_state: st.session_state.doc_context = ""
 if "is_pro" not in st.session_state: st.session_state.is_pro = False
-if "stats" not in st.session_state: st.session_state.stats = {"words": 0, "chars": 0}
+if "counter" not in st.session_state: st.session_state.counter = 0
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=st.secrets["OPENROUTER_API_KEY"],
-)
+try:
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=st.secrets["OPENROUTER_API_KEY"],
+    )
+except:
+    st.error("Критическая ошибка: Проверь OPENROUTER_API_KEY в Secrets!")
 
 with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/brain.png", width=80)
-    st.title("ПАНЕЛЬ АКЫЛМАНА")
-    
-    with st.expander("🔐 ДОСТУП PRO"):
-        pwd = st.text_input("Введи пароль:", type="password")
+    st.image("https://img.icons8.com/fluency/144/artificial-intelligence.png", width=100)
+    st.title("УПРАВЛЕНИЕ")
+
+    with st.expander("🔑 АКЦИВАЦИЯ PRO"):
+        pwd = st.text_input("Пароль:", type="password")
         if pwd == "1234":
             st.session_state.is_pro = True
-            st.success("Доступ открыт!")
+            st.success("PRO РЕЖИМ ВКЛЮЧЕН")
     
     st.divider()
-    
-    if st.session_state.is_pro:
-        v_mode = st.selectbox("Версия ИИ:", ["Mistral (Free)", "Llama 3 (Free)", "Gemini Flash (Pro)"])
+
+if st.session_state.is_pro:
+        v_mode = st.selectbox("Версия интеллекта:", ["💎 Ультра (Llama 3.1)", "🚀 Скорость (Mistral)", "⚡ Флэш (Gemini)"])
         model_id = {
-            "Mistral (Free)": "mistralai/mistral-7b-instruct:free",
-            "Llama 3 (Free)": "meta-llama/llama-3-8b-instruct:free",
-            "Gemini Flash (Pro)": "google/gemini-flash-1.5-8b"
+            "💎 Ультра (Llama 3.1)": "meta-llama/llama-3.1-8b-instruct:free",
+            "🚀 Скорость (Mistral)": "mistralai/mistral-7b-instruct:free",
+            "⚡ Флэш (Gemini)": "google/gemini-flash-1.5-8b"
         }[v_mode]
     else:
         model_id = "mistralai/mistral-7b-instruct:free"
-        st.info("В Pro режиме больше моделей")
-
-    st.divider()
+        st.warning("Доступен только базовый интеллект")
     
-    with st.expander("🎨 СТИЛЬ РИСОВАНИЯ"):
-        art_style = st.radio("Выбери стиль:", ["Реализм", "Аниме", "Киберпанк", "Масло", "3D Render"])
-        quality = st.select_slider("Качество:", options=["Low", "Medium", "High"])
+    st.divider()
 
-    with st.expander("📄 ЗАГРУЗКА ЗНАНИЙ"):
-        file = st.file_uploader("Загрузить PDF/TXT", type=["pdf", "txt"])
-        if file:
-            if file.type == "application/pdf":
-                pdf = PdfReader(file)
-                st.session_state.doc_context = " ".join([p.extract_text() for p in pdf.pages])
-            else:
-                st.session_state.doc_context = file.read().decode()
-            st.success("Знания впитаны!")
+with st.expander("📁 БАЗА ЗНАНИЙ"):
+        up_file = st.file_uploader("Загрузи PDF/TXT для АКЫЛМАНА", type=["pdf", "txt"])
+        if up_file:
+            try:
+                if up_file.type == "application/pdf":
+                    reader = PdfReader(up_file)
+                    st.session_state.doc_context = " ".join([p.extract_text() for p in reader.pages])
+                else:
+                    st.session_state.doc_context = up_file.read().decode()
+                st.success("Файл успешно изучен!")
+            except:
+                st.error("Ошибка при чтении файла")
 
-    if st.button("🗑️ ОЧИСТИТЬ ПАМЯТЬ"):
+with st.expander("🎨 СТУДИЯ РИСОВАНИЯ"):
+        style = st.selectbox("Стиль:", ["Anime", "Cyberpunk", "Photorealistic", "Digital Art", "Sketch"])
+        aspect = st.radio("Формат:", ["1:1", "16:9"])
+    
+    if st.button("🗑️ ОЧИСТИТЬ ВСЁ"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
         st.rerun()
 
 st.title("🧠 AKYLMAN ULTIMATE AI")
 
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-        if "img" in msg:
-            st.image(msg["img"], use_container_width=True, caption="Сгенерировано АКЫЛМАНОМ")
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+        if "img" in m:
+            st.image(m["img"], use_container_width=True)
 
-if prompt := st.chat_input("Спроси что угодно..."):
+if prompt := st.chat_input("Спроси у АКЫЛМАНА..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"): st.markdown(prompt)
 
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
-            with st.spinner("🎨 Художник АКЫЛМАН берется за кисть..."):
-                subject = prompt.lower().replace("нарисуй", "").strip()
-                full_prompt = f"{subject}, style {art_style}, highly detailed, {quality} resolution"
-                url = f"https://pollinations.ai/p/{urllib.parse.quote(full_prompt)}?width=1024&height=1024&nologo=true"
-                st.image(url, use_container_width=True)
-                st.session_state.messages.append({"role": "assistant", "content": f"Вот твой рисунок: {subject}", "img": url})
+            # Логика рисования
+            subject = prompt.lower().replace("нарисуй", "").strip()
+            draw_prompt = f"{subject}, {style} style, masterpiece, high quality"
+            url = f"https://pollinations.ai/p/{urllib.parse.quote(draw_prompt)}?width=1024&height=1024&nologo=true"
+            st.image(url, caption=f"Результат: {subject}")
+            st.session_state.messages.append({"role": "assistant", "content": f"Готово! Рисунок на тему: {subject}", "img": url})
         else:
-            res_box = st.empty()
-            full_res = ""
-            
-            # Поиск в сети
-            web_info = ""
-            if any(x in prompt.lower() for x in ["найди", "новости", "кто такой"]):
+            web_data = ""
+            if any(k in prompt.lower() for k in ["найди", "новости", "кто"]):
                 try:
                     search = DDGS().text(prompt, max_results=3)
-                    web_info = "\nДАННЫЕ ИЗ ИНТЕРНЕТА:\n" + "\n".join([s['body'] for s in search])
+                    web_data = "\nWEB-ИНФО:\n" + "\n".join([s['body'] for s in search])
                 except: pass
 
-            system_instr = f"Ты - АКЫЛМАН. Помогай Исануру. Используй знания: {st.session_state.doc_context[:4000]}. {web_info}"
+            full_instr = f"Ты - АКЫЛМАН. Помогай Исануру. Текст из файлов: {st.session_state.doc_context[:3000]}. {web_data}"
             
+            res_area = st.empty(); full_text = ""
             try:
-                stream = client.chat.completions.create(
+                resp = client.chat.completions.create(
                     model=model_id,
-                    messages=[{"role": "system", "content": system_instr}, {"role": "user", "content": prompt}],
+                    messages=[{"role": "system", "content": full_instr}, {"role": "user", "content": prompt}],
                     stream=True
                 )
-                for chunk in stream:
+                for chunk in resp:
                     if chunk.choices[0].delta.content:
-                        full_res += chunk.choices[0].delta.content
-                        res_box.markdown(full_res + "▌")
-                res_box.markdown(full_res)
-                st.session_state.messages.append({"role": "assistant", "content": full_res})
-                
-                # Функция статистики
-                st.session_state.stats["words"] += len(full_res.split())
+                        full_text += chunk.choices[0].delta.content
+                        res_area.markdown(full_text + "▌")
+                res_area.markdown(full_text)
+                st.session_state.messages.append({"role": "assistant", "content": full_text})
+                st.session_state.counter += len(full_text.split())
             except Exception as e:
-                st.error(f"Критическая ошибка: {e}")
+                st.error("Упс! Эта модель сейчас спит. Переключись на 'Скорость (Mistral)' в боковом меню.")
 
 st.divider()
-col1, col2, col3 = st.columns(3)
-with col1: st.write(f"💬 Сообщений: {len(st.session_state.messages)}")
-with col2: st.write(f"📝 Слов сгенерировано: {st.session_state.stats['words']}")
-with col3: st.write(f"👤 Пользователь: Исанур")
+c1, c2, c3 = st.columns(3)
+with c1: st.info(f"📍 Статус: {'PRO' if st.session_state.is_pro else 'FREE'}")
+with c2: st.info(f"📊 Слов сегодня: {st.session_state.counter}")
+with c3: st.info(f"📅 Дата: {datetime.date.today()}")
