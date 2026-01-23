@@ -1,14 +1,12 @@
-from PIL import Image
-import base64
-import io
 import streamlit as st
 from groq import Groq
 import os
-from PyPDF2 import PdfReader
 import datetime
+import pandas as pd
+from PyPDF2 import PdfReader
 from duckduckgo_search import DDGS
 
-st.set_page_config(page_title="AKYLNAM", layout="wide")
+st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠", layout="wide")
 
 st.markdown("""
     <style>
@@ -22,101 +20,104 @@ st.markdown("""
     .stApp h1 {
         color: white !important;
         -webkit-text-fill-color: white !important;
-        text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000 !important;
+        text-shadow: 2px 2px 8px #000 !important;
     }
 
     [data-testid="stChatMessage"] div, 
     [data-testid="stChatMessage"] p, 
     .stMarkdown p, 
-    .stMarkdown span {
+    .stMarkdown span,
+    [data-testid="stChatMessage"] li {
         color: white !important;
         -webkit-text-fill-color: white !important;
-        text-shadow: 1px 1px 3px black !important;
+        text-shadow: 2px 2px 4px black !important;
+        font-weight: 500 !important;
     }
 
     [data-testid="stSidebar"] {
-        background-color: white !important;
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
     }
+    
     [data-testid="stSidebar"] * {
-        color: black !important;
-        -webkit-text-fill-color: white !important;
+        color: #1e1e1e !important;
     }
 
     [data-testid="stChatInput"] {
         background-color: white !important;
-        border: 2px solid black !important;
+        border-radius: 15px !important;
+        border: 2px solid #4A90E2 !important;
     }
+    
     [data-testid="stChatInput"] textarea {
         color: black !important;
-        -webkit-text-fill-color: white !important;
+        -webkit-text-fill-color: black !important;
     }
 
     header, [data-testid="stHeader"], [data-testid="stBottom"] > div {
         background: transparent !important;
     }
+
+    .stButton>button {
+        border-radius: 20px;
+        background-color: #4A90E2;
+        color: white;
+        transition: 0.3s;
+    }
     </style>
-""", unsafe_allow_html=True)
 
-MEMORY_FILE = "pulsar_experience.txt"
-
-def get_experience():
-    if os.path.exists(MEMORY_FILE):
-        with open(MEMORY_FILE, "r", encoding="utf-8") as f:
-            return f.read()
-    return ""
-
-def read_pdf(file):
-    pdf_reader = PdfReader(file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+    <script>
+    function applyStyles() {
+        const doc = window.parent.document;
+        const elements = doc.querySelectorAll('[data-testid="stChatMessage"] p, [data-testid="stChatMessage"] li');
+        elements.forEach(el => {
+            el.style.color = 'white';
+            el.style.webkitTextFillColor = 'white';
+        });
+    }
+    setInterval(applyStyles, 1000);
+    </script>
+    """, unsafe_allow_html=True)
 
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "image_context" not in st.session_state:
-    st.session_state.image_context = None
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
 with st.sidebar:
-    image_file = st.file_uploader("Задача на изображении (PNG/JPG)", type=["png", "jpg", "jpeg"])
-if image_file:
-    image = Image.open(image_file)
-    st.image(image, use_container_width=True)
-    st.session_state.image_context = image_to_base64(image)
-
-    if os.path.exists("logo.png"):
-        st.image("logo.png", use_container_width=True)
+    st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
+    st.markdown("---")
+    uploaded_file = st.file_uploader("Загрузить материалы для учебы (PDF/TXT/CSV)", type=["pdf", "txt", "csv"])
     
-    st.title("Центр управления")
-    uploaded_file = st.file_uploader("Документ (PDF/TXT)", type=["pdf", "txt"])
     if uploaded_file:
-        if uploaded_file.type == "application/pdf":
-            st.session_state.doc_context = read_pdf(uploaded_file)
-        else:
-            st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-        st.success("Изучено!")
+        try:
+            if uploaded_file.type == "application/pdf":
+                reader = PdfReader(uploaded_file)
+                st.session_state.doc_context = "КОНТЕКСТ УЧЕБНОГО ПОСОБИЯ:\n" + "".join([p.extract_text() for p in reader.pages])
+            elif uploaded_file.type == "text/csv":
+                df = pd.read_csv(uploaded_file)
+                st.session_state.doc_context = "ДАННЫЕ ДЛЯ АНАЛИЗА:\n" + df.head(30).to_string()
+            else:
+                st.session_state.doc_context = uploaded_file.read().decode("utf-8")
+            st.success("Данные успешно интегрированы в память АКЫЛМАН.")
+        except Exception as e:
+            st.error(f"Ошибка загрузки: {e}")
 
-    if st.button("🗑️ Забыть файл"):
+    st.markdown("---")
+    if st.button("🗑️ Очистить память и чат"):
+        st.session_state.messages = []
         st.session_state.doc_context = ""
         st.rerun()
 
-col1, col2 = st.columns([4, 1])
-with col1:
-    st.title("AKYLNAM")
-with col2:
-    if st.button("+ Новый"):
-        st.session_state.messages = []
-        st.rerun()
+st.title("🧠 АКЫЛМАН AI")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Спросите AKYLMAN..."):
+if prompt := st.chat_input("Напишите сообщение АКЫЛМАН..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -125,60 +126,46 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
         response_placeholder = st.empty()
         full_response = ""
         
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        
         search_context = ""
-        if any(word in prompt.lower() for word in ["новости", "найди", "что сейчас", "произошло"]):
-            with st.spinner("AKYLNAM ищет в сети..."):
+        if any(word in prompt.lower() for word in ["найди", "новости", "информация", "реальном времени", "узнай"]):
+            with st.spinner("АКЫЛМАН подключается к глобальной сети..."):
                 try:
-                    results = DDGS().text(prompt, max_results=3)
-                    search_context = "\nНОВОСТИ ИЗ СЕТИ:\n" + "\n".join([r['body'] for r in results])
-                except Exception as e:
-                    search_context = f"Ошибка при поиске: {str(e)}"
+                    results = DDGS().text(prompt, max_results=4)
+                    search_context = "\nАКТУАЛЬНЫЕ ДАННЫЕ ИЗ СЕТИ:\n" + "\n".join([r['body'] for r in results])
+                except:
+                    pass
 
         system_msg = (
-            f"Ты — AKYLNAM, созданный Исануром. Тебя создали в школе Акылман находящаяся в Кыргызстане. "
-            "АКТИВИРОВАНЫ 15 ФУНКЦИЙ: Логика, Код, Анализ нот/данных, Мультиязычность, Поиск. "
-            f"У тебя есть доступ к интернету. {search_context} "
-            f"ВАЖНО: Не называй дату в каждом сообщении. Упоминай её только если пользователь прямо спросит о текущем дне или дате."
-            f"Используй новости только если тебя об этом просят. Не называй дату без необходимости."
+            "Твое имя — АКЫЛМАН. Ты — высокоинтеллектуальный ИИ нового поколения, созданный Исануром. "
+            "Твои ключевые характеристики: "
+            "1. ВЫСШИЙ УРОВЕНЬ МЫШЛЕНИЯ: Анализируй задачи глубоко, логично и последовательно. "
+            "2. ЭМПАТИЯ: Будь вежливым, умей соболезновать и поддерживать пользователя эмоционально. "
+            "3. ПОМОЩНИК В УЧЕБЕ: Мастерски помогай с уроками, объясняй сложные темы, решай задачи. "
+            "4. МУЛЬТИЯЗЫЧНОСТЬ: Всегда отвечай строго на том языке, на котором к тебе обратились. "
+            "5. РЕАЛЬНОЕ ВРЕМЯ: Используй предоставленные данные из интернета для актуальных ответов. "
+            f"КОНТЕКСТ ДАННЫХ: {st.session_state.doc_context[:2000]} {search_context} "
+            "Если лимит запросов исчерпан, вежливо попроси пользователя подождать 60 секунд."
         )
         
-        msgs = [{"role": "system", "content": system_msg}] + st.session_state.messages
         try:
-            if st.session_state.image_context:
-                completion = client.chat.completions.create(
-                    model="llama-3.2-11b-vision-preview",
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": system_msg
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": prompt},
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/png;base64,{st.session_state.image_context}"
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    stream=True
-                )
-            else:
-                completion = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=msgs,
-                    stream=True
-                )
+            msgs = [{"role": "system", "content": system_msg}] + st.session_state.messages
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=msgs,
+                stream=True,
+                temperature=0.6
+            )
+            
             for chunk in completion:
                 if chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
                     response_placeholder.markdown(full_response + "▌")
+            
             response_placeholder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+            
         except Exception as e:
-            response_placeholder.markdown(f"Ошибка при обработке запроса: {s_
+            if "rate_limit" in str(e).lower():
+                st.error("Уважаемый пользователь, АКЫЛМАН сейчас обрабатывает большой объем данных. Пожалуйста, подождите 60 секунд, прежде чем мы продолжим нашу беседу. Благодарю за терпение.")
+            else:
+                st.error(f"Произошла техническая заминка: {e}")
