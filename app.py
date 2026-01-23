@@ -14,10 +14,7 @@ st.markdown("""
         background-position: center;
         background-attachment: fixed;
     }
-    .stApp h1 {
-        color: white !important;
-        text-shadow: 2px 2px 8px #000 !important;
-    }
+    .stApp h1 { color: white !important; text-shadow: 2px 2px 8px #000 !important; }
     [data-testid="stChatMessage"] p, .stMarkdown p, .stMarkdown span, li {
         color: white !important;
         text-shadow: 2px 2px 4px black !important;
@@ -31,20 +28,20 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-try:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('models/gemini-1.5-flash')
-except Exception as e:
-    st.error(f"API Error: {e}")
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
+try:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error(f"API Error: {e}")
+
 with st.sidebar:
     st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
-    uploaded_file = st.file_uploader("Материалы для учебы", type=["pdf", "txt", "csv"])
+    uploaded_file = st.file_uploader("Материалы", type=["pdf", "txt", "csv"])
     if uploaded_file:
         try:
             if uploaded_file.type == "application/pdf":
@@ -55,10 +52,9 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Изучено.")
+            st.success("Готов.")
         except Exception as e:
             st.error(f"File Error: {e}")
-    
     if st.button("🗑️ Очистить"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
@@ -78,37 +74,27 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         full_response = ""
-        
         search_data = ""
         if any(w in prompt.lower() for w in ["найди", "новости", "инфо"]):
             try:
                 results = DDGS().text(prompt, max_results=3)
                 search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
-            except:
-                pass
+            except: pass
 
-        sys_instr = (
-            "Ты АКЫЛМАН, ИИ созданный Исануром. Ты эмпатичен, логичен и помогаешь с учебой. "
-            "Отвечай на языке пользователя. "
-            f"КОНТЕКСТ: {st.session_state.doc_context[:15000]} {search_data}"
-        )
+        sys_instr = f"Ты АКЫЛМАН, эмпатичный ИИ от Исанура. Помогай с учебой. Отвечай на языке пользователя. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
         
         try:
-            response = model.generate_content(
-                f"{sys_instr}\n\nПользователь: {prompt}", 
-                stream=True
-            )
-            
+            response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
             for chunk in response:
                 if chunk.text:
                     full_response += chunk.text
                     response_placeholder.markdown(full_response + "▌")
-            
             response_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
-            
         except Exception as e:
-            if "quota" in str(e).lower():
-                st.error("Лимит. Подождите 60 секунд.")
+            if "404" in str(e):
+                st.error("Ошибка модели. Попробуй в коде заменить 'gemini-1.5-flash' на 'gemini-pro'.")
+            elif "quota" in str(e).lower():
+                st.error("Лимит. Подожди 60 сек.")
             else:
                 st.error(f"Error: {e}")
