@@ -31,13 +31,11 @@ if "is_pro" not in st.session_state: st.session_state.is_pro = False
 with st.sidebar:
     st.title("🎛️ УПРАВЛЕНИЕ")
     CORRECT_PASSWORD = "1234"
-    
     if not st.session_state.is_pro:
         pwd = st.text_input("Пароль для Pro:", type="password")
         if pwd == CORRECT_PASSWORD:
             st.session_state.is_pro = True
             st.rerun()
-    
     if st.session_state.is_pro:
         st.success("Доступ активен ✅")
         modes = ["🚀 Быстрая (Flash)", "🤔 Думающая (Pro)", "💎 Plus (1.5 Pro)"]
@@ -46,11 +44,11 @@ with st.sidebar:
         modes = ["🚀 Быстрая (Flash)"]
     
     version = st.selectbox("Версия АКЫЛМАНА:", modes)
-    # Самые точные названия моделей для API v1beta
-    model_mapping = {
-        "🚀 Быстрая (Flash)": "gemini-1.5-flash-latest",
-        "🤔 Думающая (Pro)": "gemini-pro",
-        "💎 Plus (1.5 Pro)": "gemini-1.5-pro-latest"
+
+    model_variants = {
+        "🚀 Быстрая (Flash)": ["gemini-1.5-flash", "models/gemini-1.5-flash", "gemini-1.5-flash-latest"],
+        "🤔 Думающая (Pro)": ["gemini-1.0-pro", "models/gemini-pro", "gemini-pro"],
+        "💎 Plus (1.5 Pro)": ["gemini-1.5-pro", "models/gemini-1.5-pro", "gemini-1.5-pro-latest"]
     }
     
     uploaded_file = st.file_uploader("Материалы", type=["pdf", "txt", "csv"])
@@ -62,19 +60,13 @@ with st.sidebar:
             else: st.session_state.doc_context = uploaded_file.read().decode("utf-8")
             st.success("Готов!")
         except: st.error("Ошибка файла")
-    
     if st.button("🗑️ Очистить"):
         st.session_state.messages = []; st.session_state.doc_context = ""; st.rerun()
 
-try:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    active_model = genai.GenerativeModel(model_mapping[version])
-except Exception as e:
-    st.error(f"Ошибка API: {e}")
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 st.title(f"🧠 АКЫЛМАН AI ({version.split()[1]})")
 
-# Отображение чата
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -87,28 +79,37 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
 
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
-            clean = prompt.lower().replace("нарисуй", "").strip() or "красивый пейзаж"
+            clean = prompt.lower().replace("нарисуй", "").strip() or "space cat"
             url = f"https://pollinations.ai/p/{urllib.parse.quote(clean)}?width=1024&height=1024&nologo=true"
             st.markdown(f"🎨 Рисую: **{clean}**")
             st.markdown(f'<img src="{url}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
-            st.session_state.messages.append({"role": "assistant", "content": f"Готово! Рисунок: {clean}", "img": url})
+            st.session_state.messages.append({"role": "assistant", "content": f"Рисунок: {clean}", "img": url})
         else:
             res_box = st.empty(); full_res = ""
             search_data = ""
             if any(w in prompt.lower() for w in ["найди", "новости"]):
                 try:
                     results = DDGS().text(prompt, max_results=2)
-                    search_data = "\nWeb Info:\n" + "\n".join([r['body'] for r in results])
+                    search_data = "\nWeb:\n" + "\n".join([r['body'] for r in results])
                 except: pass
             
             instr = f"Ты АКЫЛМАН. Помогай Исануру. КОНТЕКСТ: {st.session_state.doc_context[:5000]} {search_data}"
-            try:
-                response = active_model.generate_content(f"{instr}\n\nUser: {prompt}", stream=True)
-                for chunk in response:
-                    if chunk.text:
-                        full_res += chunk.text
-                        res_box.markdown(full_res + "▌")
-                res_box.markdown(full_res)
-                st.session_state.messages.append({"role": "assistant", "content": full_res})
-            except Exception as e:
-                st.error(f"Версия {version} временно недоступна. Попробуйте переключиться на 'Быструю'. Ошибка: {str(e)[:50]}...")
+            
+            success = False
+            for model_name in model_variants[version]:
+                try:
+                    active_model = genai.GenerativeModel(model_name)
+                    response = active_model.generate_content(f"{instr}\n\nUser: {prompt}", stream=True)
+                    for chunk in response:
+                        if chunk.text:
+                            full_res += chunk.text
+                            res_box.markdown(full_res + "▌")
+                    res_box.markdown(full_res)
+                    st.session_state.messages.append({"role": "assistant", "content": full_res})
+                    success = True
+                    break
+                except Exception:
+                    continue
+            
+            if not success:
+                st.error(f"Версия {version} не отвечает. Попробуй обновить страницу или выбрать другую версию в меню.")
