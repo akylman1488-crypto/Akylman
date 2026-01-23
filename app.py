@@ -68,6 +68,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
         if "image_url" in message:
             st.image(message["image_url"])
+            st.markdown(f"[🔗 Открыть картинку в новом окне]({message['image_url']})")
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -77,17 +78,18 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
             response_placeholder = st.empty()
-            response_placeholder.markdown("🎨 **АКЫЛМАН создает шедевр...**")
-
-            clean_prompt = prompt.lower().replace("нарисуй", "").strip()
-            # Кодируем для URL
-            encoded_prompt = urllib.parse.quote(clean_prompt)
-            # Прямая ссылка на генератор
-            image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed=42&model=flux"
-
-            st.image(image_url, caption=f"Результат для: {clean_prompt}", use_container_width=True)
+            response_placeholder.markdown("🎨 Рисую...")
             
-            full_response = f"Готово! Я подготовил рисунок по твоему запросу: '{clean_prompt}'"
+            clean_prompt = prompt.lower().replace("нарисуй", "").strip()
+            if not clean_prompt:
+                clean_prompt = "beautiful landscape"
+            
+            encoded_prompt = urllib.parse.quote(clean_prompt)
+            image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true"
+            
+            st.image(image_url)
+            full_response = f"Готово! Если картинка не видна, нажми на ссылку ниже. Запрос: {clean_prompt}"
+            st.markdown(f"[🔗 Ссылка на рисунок]({image_url})")
             st.session_state.messages.append({"role": "assistant", "content": full_response, "image_url": image_url})
             response_placeholder.markdown(full_response)
         else:
@@ -111,4 +113,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
-                st.error(f"Ошибка Gemini: {e}. Попробуйте позже.")
+                st.error(f"Ошибка Gemini: {e}")
