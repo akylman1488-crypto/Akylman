@@ -34,9 +34,9 @@ st.markdown("""
 
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    st.error(f"Ошибка API: {e}")
+    st.error(f"API Error: {e}")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -56,11 +56,11 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("АКЫЛМАН изучил файлы.")
+            st.success("Изучено.")
         except Exception as e:
-            st.error(f"Ошибка: {e}")
+            st.error(f"File Error: {e}")
     
-    if st.button("🗑️ Очистить всё"):
+    if st.button("🗑️ Очистить"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
         st.rerun()
@@ -72,4 +72,44 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
-    st.session_state.messages.append({"role": "user", "content":
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        response_placeholder = st.empty()
+        full_response = ""
+        
+        search_data = ""
+        if any(w in prompt.lower() for w in ["найди", "новости", "инфо"]):
+            try:
+                results = DDGS().text(prompt, max_results=3)
+                search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
+            except:
+                pass
+
+        sys_instr = (
+            "Ты АКЫЛМАН, ИИ созданный Исануром. Ты эмпатичен, логичен и помогаешь с учебой. "
+            "Отвечай на языке пользователя. "
+            f"КОНТЕКСТ: {st.session_state.doc_context[:15000]} {search_data}"
+        )
+        
+        try:
+            response = model.generate_content(
+                f"{sys_instr}\n\nПользователь: {prompt}", 
+                stream=True
+            )
+            
+            for chunk in response:
+                if chunk.text:
+                    full_response += chunk.text
+                    response_placeholder.markdown(full_response + "▌")
+            
+            response_placeholder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+            
+        except Exception as e:
+            if "quota" in str(e).lower():
+                st.error("Лимит. Подождите 60 секунд.")
+            else:
+                st.error(f"Error: {e}")
