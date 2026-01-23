@@ -20,7 +20,6 @@ st.markdown("""
     [data-testid="stSidebar"] { background-color: rgba(255, 255, 255, 0.9) !important; }
     [data-testid="stSidebar"] * { color: #1e1e1e !important; }
     [data-testid="stChatInput"] { background-color: white !important; border-radius: 15px !important; }
-    [data-testid="stChatInput"] textarea { color: black !important; }
     header, [data-testid="stHeader"], [data-testid="stBottom"] > div { background: transparent !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -31,27 +30,29 @@ if "is_pro" not in st.session_state: st.session_state.is_pro = False
 
 with st.sidebar:
     st.title("🎛️ УПРАВЛЕНИЕ")
-    CORRECT_PASSWORD = "AKYLMAN-PRO"
+    CORRECT_PASSWORD = "1234"
+    
     if not st.session_state.is_pro:
-        pwd_input = st.text_input("Пароль для Pro:", type="password")
-        if pwd_input == CORRECT_PASSWORD:
+        pwd = st.text_input("Пароль для Pro:", type="password")
+        if pwd == CORRECT_PASSWORD:
             st.session_state.is_pro = True
             st.rerun()
+    
     if st.session_state.is_pro:
         st.success("Доступ активен ✅")
-        available_modes = ["🚀 Быстрая (Flash)", "🤔 Думающая (Pro)", "💎 Plus (1.5 Pro)"]
+        modes = ["🚀 Быстрая (Flash)", "🤔 Думающая (Pro)", "💎 Plus (1.5 Pro)"]
         if st.button("Выйти"): st.session_state.is_pro = False; st.rerun()
     else:
-        available_modes = ["🚀 Быстрая (Flash)"]
+        modes = ["🚀 Быстрая (Flash)"]
     
-    version = st.selectbox("Версия АКЫЛМАНА:", available_modes)
+    version = st.selectbox("Версия АКЫЛМАНА:", modes)
+    # Самые точные названия моделей для API v1beta
     model_mapping = {
         "🚀 Быстрая (Flash)": "gemini-1.5-flash-latest",
         "🤔 Думающая (Pro)": "gemini-pro",
         "💎 Plus (1.5 Pro)": "gemini-1.5-pro-latest"
     }
-    selected_model = model_mapping[version]
-
+    
     uploaded_file = st.file_uploader("Материалы", type=["pdf", "txt", "csv"])
     if uploaded_file:
         try:
@@ -59,22 +60,26 @@ with st.sidebar:
                 reader = PdfReader(uploaded_file)
                 st.session_state.doc_context = "".join([p.extract_text() for p in reader.pages])
             else: st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Ок")
+            st.success("Готов!")
         except: st.error("Ошибка файла")
+    
     if st.button("🗑️ Очистить"):
         st.session_state.messages = []; st.session_state.doc_context = ""; st.rerun()
 
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel(selected_model)
-except Exception as e: st.error(f"Ошибка ключа: {e}")
+    active_model = genai.GenerativeModel(model_mapping[version])
+except Exception as e:
+    st.error(f"Ошибка API: {e}")
 
 st.title(f"🧠 АКЫЛМАН AI ({version.split()[1]})")
 
+# Отображение чата
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-        if "img" in msg: st.markdown(f'<img src="{msg["img"]}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
+        if "img" in msg:
+            st.markdown(f'<img src="{msg["img"]}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -82,27 +87,28 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
 
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
-            clean = prompt.lower().replace("нарисуй", "").strip()
+            clean = prompt.lower().replace("нарисуй", "").strip() or "красивый пейзаж"
             url = f"https://pollinations.ai/p/{urllib.parse.quote(clean)}?width=1024&height=1024&nologo=true"
-            st.markdown(f"🎨 Создаю рисунок: **{clean}**")
-            st.markdown(f'<a href="{url}" target="_blank">🔗 Открыть, если не видно</a>', unsafe_allow_html=True)
+            st.markdown(f"🎨 Рисую: **{clean}**")
             st.markdown(f'<img src="{url}" style="width:100%; border-radius:10px;">', unsafe_allow_html=True)
-            st.session_state.messages.append({"role": "assistant", "content": f"Рисунок: {clean}", "img": url})
+            st.session_state.messages.append({"role": "assistant", "content": f"Готово! Рисунок: {clean}", "img": url})
         else:
-            res_box = st.empty(); full_res = ""; search_data = ""
+            res_box = st.empty(); full_res = ""
+            search_data = ""
             if any(w in prompt.lower() for w in ["найди", "новости"]):
                 try:
                     results = DDGS().text(prompt, max_results=2)
-                    search_data = "\nИНФО ИЗ СЕТИ:\n" + "\n".join([r['body'] for r in results])
+                    search_data = "\nWeb Info:\n" + "\n".join([r['body'] for r in results])
                 except: pass
             
-            instr = f"Ты АКЫЛМАН. КОНТЕКСТ: {st.session_state.doc_context[:5000]} {search_data}"
+            instr = f"Ты АКЫЛМАН. Помогай Исануру. КОНТЕКСТ: {st.session_state.doc_context[:5000]} {search_data}"
             try:
-                response = model.generate_content(f"{instr}\n\nUser: {prompt}", stream=True)
+                response = active_model.generate_content(f"{instr}\n\nUser: {prompt}", stream=True)
                 for chunk in response:
                     if chunk.text:
                         full_res += chunk.text
                         res_box.markdown(full_res + "▌")
                 res_box.markdown(full_res)
                 st.session_state.messages.append({"role": "assistant", "content": full_res})
-            except Exception as e: st.error(f"Модель {version} недоступна. Попробуйте 'Быструю'.")
+            except Exception as e:
+                st.error(f"Версия {version} временно недоступна. Попробуйте переключиться на 'Быструю'. Ошибка: {str(e)[:50]}...")
