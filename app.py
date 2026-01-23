@@ -55,31 +55,7 @@ st.markdown("""
         background: transparent !important;
     }
     </style>
-
-    <script>
-    function forceWhiteText() {
-        const doc = window.parent.document;
-        const messages = doc.querySelectorAll('[data-testid="stChatMessage"] p');
-        messages.forEach(msg => {
-            msg.style.color = 'white';
-            msg.style.webkitTextFillColor = 'white';
-        });
-        
-        const h1 = doc.querySelector('h1');
-        if (h1) {
-            h1.style.color = 'white';
-            h1.style.webkitTextFillColor = 'white';
-        }
-
-        const menuBtn = doc.querySelector('button[data-testid="stHeaderSidebarNav"]');
-        if (menuBtn) {
-            menuBtn.style.backgroundColor = 'white';
-            menuBtn.style.borderRadius = '50%';
-        }
-    }
-    setInterval(forceWhiteText, 1000);
-    </script>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 MEMORY_FILE = "pulsar_experience.txt"
 
@@ -107,13 +83,10 @@ if "doc_context" not in st.session_state:
 
 with st.sidebar:
     image_file = st.file_uploader("Задача на изображении (PNG/JPG)", type=["png", "jpg", "jpeg"])
-
 if image_file:
     image = Image.open(image_file)
     st.image(image, use_container_width=True)
     st.session_state.image_context = image_to_base64(image)
-else:
-    st.session_state.image_context = None
 
     if os.path.exists("logo.png"):
         st.image("logo.png", use_container_width=True)
@@ -208,11 +181,4 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
                     response_placeholder.markdown(full_response + "▌")
             response_placeholder.markdown(full_response)
         except Exception as e:
-            response_placeholder.markdown(f"Ошибка при обработке запроса: {str(e)}")
-    
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-def image_to_base64(img):
-    buffer = io.BytesIO()
-    img.save(buffer, format="PNG")
-    return base64.b64encode(buffer.getvalue()).decode()
+            response_placeholder.markdown(f"Ошибка при обработке запроса: {s_
