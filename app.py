@@ -1,13 +1,19 @@
 import streamlit as st
 import pandas as pd
 from PyPDF2 import PdfReader
-from openai import OpenAI
+from groq import Groq
 from duckduckgo_search import DDGS
 import urllib.parse
 import time
 import datetime
+import random
 
-st.set_page_config(page_title="AKYLMAN ULTIMATE AI", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="AKYLMAN ULTIMATE PRO", page_icon="🧠", layout="wide")
+
+if "messages" not in st.session_state: st.session_state.messages = []
+if "doc_context" not in st.session_state: st.session_state.doc_context = ""
+if "is_pro" not in st.session_state: st.session_state.is_pro = False
+if "tokens_used" not in st.session_state: st.session_state.tokens_used = 0
 
 st.markdown("""
     <style>
@@ -15,82 +21,76 @@ st.markdown("""
         background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
         background-size: cover; background-position: center; background-attachment: fixed;
     }
-    .stApp h1 { color: white !important; text-shadow: 4px 4px 15px #000 !important; font-family: 'Arial Black', sans-serif; }
-    [data-testid="stChatMessage"] { background-color: rgba(15, 15, 15, 0.8) !important; border-radius: 25px !important; border: 1px solid #ff4b4b !important; }
-    [data-testid="stChatMessage"] p, .stMarkdown, span, li { color: #f0f0f0 !important; font-size: 1.1rem !important; }
-    [data-testid="stSidebar"] { background: rgba(255, 255, 255, 0.98) !important; border-right: 3px solid #ff4b4b !important; }
-    .stChatInputContainer { padding-bottom: 20px !important; }
-    .stButton>button { background: linear-gradient(45deg, #1e1e1e, #ff4b4b); color: white; border: none; font-weight: bold; }
+    .stApp h1 { color: #00f2fe !important; text-shadow: 0px 0px 20px #4facfe !important; font-size: 3.5rem !important; text-align: center; }
+    [data-testid="stChatMessage"] { background-color: rgba(10, 10, 20, 0.85) !important; border-left: 5px solid #00f2fe !important; border-radius: 15px !important; margin: 10px 0; }
+    .stMarkdown p, li, span { color: #e0e0e0 !important; font-weight: 400; line-height: 1.6; }
+    [data-testid="stSidebar"] { background: rgba(0, 0, 0, 0.9) !important; border-right: 2px solid #00f2fe !important; }
+    .stChatInputContainer { background: transparent !important; }
+    input { background-color: #1e1e2e !important; color: white !important; border-radius: 25px !important; border: 1px solid #00f2fe !important; }
     </style>
     """, unsafe_allow_html=True)
 
-if "messages" not in st.session_state: st.session_state.messages = []
-if "doc_context" not in st.session_state: st.session_state.doc_context = ""
-if "is_pro" not in st.session_state: st.session_state.is_pro = False
-if "counter" not in st.session_state: st.session_state.counter = 0
-
 try:
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=st.secrets["OPENROUTER_API_KEY"],
-    )
-except:
-    st.error("Критическая ошибка: Проверь OPENROUTER_API_KEY в Secrets!")
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+except Exception as e:
+    st.error(f"Ошибка ключа Groq: {e}")
 
 with st.sidebar:
-    st.image("https://img.icons8.com/fluency/144/artificial-intelligence.png", width=100)
-    st.title("УПРАВЛЕНИЕ")
-
-    with st.expander("🔑 АКЦИВАЦИЯ PRO"):
-        pwd = st.text_input("Пароль:", type="password")
-        if pwd == "1234":
-            st.session_state.is_pro = True
-            st.success("PRO РЕЖИМ ВКЛЮЧЕН")
+    st.image("https://img.icons8.com/nolan/128/brainstorm.png", width=100)
+    st.title("АКЫЛМАН КОНТРОЛЬ")
     
-    st.divider()
+    with st.expander("👤 АККАУНТ"):
+        if not st.session_state.is_pro:
+            user_pwd = st.text_input("Пароль доступа:", type="password")
+            if user_pwd == "1234":
+                st.session_state.is_pro = True
+                st.success("Доступ активен!")
+                st.rerun()
+        else:
+            st.success("СТАТУС: ПРЕЗИДЕНТСКИЙ")
 
-if st.session_state.is_pro:
-        v_mode = st.selectbox("Версия интеллекта:", ["💎 Ультра (Llama 3.1)", "🚀 Скорость (Mistral)", "⚡ Флэш (Gemini)"])
+st.divider()
+    if st.session_state.is_pro:
+        groq_model = st.selectbox("Выбери мощность:", 
+            ["Llama 3 (70B) - Самая умная", "Llama 3 (8B) - Мгновенная", "Mixtral - Для задач"])
         model_id = {
-            "💎 Ультра (Llama 3.1)": "meta-llama/llama-3.1-8b-instruct:free",
-            "🚀 Скорость (Mistral)": "mistralai/mistral-7b-instruct:free",
-            "⚡ Флэш (Gemini)": "google/gemini-flash-1.5-8b"
-        }[v_mode]
+            "Llama 3 (70B) - Самая умная": "llama3-70b-8192",
+            "Llama 3 (8B) - Мгновенная": "llama3-8b-8192",
+            "Mixtral - Для задач": "mixtral-8x7b-32768"
+        }[groq_model]
     else:
-        model_id = "mistralai/mistral-7b-instruct:free"
-        st.warning("Доступен только базовый интеллект")
-    
-    st.divider()
+        model_id = "llama3-8b-8192"
+        st.info("Вам доступна версия 8B. Введите пароль для 70B.")
 
-with st.expander("📁 БАЗА ЗНАНИЙ"):
-        up_file = st.file_uploader("Загрузи PDF/TXT для АКЫЛМАНА", type=["pdf", "txt"])
-        if up_file:
-            try:
-                if up_file.type == "application/pdf":
-                    reader = PdfReader(up_file)
-                    st.session_state.doc_context = " ".join([p.extract_text() for p in reader.pages])
+with st.expander("📂 БАЗА ДАННЫХ"):
+        uploaded_files = st.file_uploader("Загрузи документы (PDF/TXT):", accept_multiple_files=True)
+        if uploaded_files:
+            full_text = ""
+            for f in uploaded_files:
+                if f.name.endswith(".pdf"):
+                    reader = PdfReader(f)
+                    full_text += " ".join([p.extract_text() for p in reader.pages])
                 else:
-                    st.session_state.doc_context = up_file.read().decode()
-                st.success("Файл успешно изучен!")
-            except:
-                st.error("Ошибка при чтении файла")
+                    full_text += f.read().decode()
+            st.session_state.doc_context = full_text
+            st.success(f"Изучено символов: {len(full_text)}")
 
-with st.expander("🎨 СТУДИЯ РИСОВАНИЯ"):
-        style = st.selectbox("Стиль:", ["Anime", "Cyberpunk", "Photorealistic", "Digital Art", "Sketch"])
-        aspect = st.radio("Формат:", ["1:1", "16:9"])
+with st.expander("🎨 СТУДИЯ ДИЗАЙНА"):
+        st_art = st.selectbox("Стиль ИИ:", ["Цифровое искусство", "Гиперреализм", "Аниме 4K", "Чертеж", "3D Объект"])
+        st_size = st.select_slider("Детализация:", options=["Normal", "HD", "Ultra"])
     
-    if st.button("🗑️ ОЧИСТИТЬ ВСЁ"):
+    if st.button("🔴 СБРОС СИСТЕМЫ"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
         st.rerun()
 
-st.title("🧠 AKYLMAN ULTIMATE AI")
+st.title("🧠 AKYLMAN ULTIMATE PRO")
 
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
         if "img" in m:
-            st.image(m["img"], use_container_width=True)
+            st.image(m["img"], caption="Визуализация АКЫЛМАНА")
 
 if prompt := st.chat_input("Спроси у АКЫЛМАНА..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -98,41 +98,42 @@ if prompt := st.chat_input("Спроси у АКЫЛМАНА..."):
 
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
-            # Логика рисования
-            subject = prompt.lower().replace("нарисуй", "").strip()
-            draw_prompt = f"{subject}, {style} style, masterpiece, high quality"
-            url = f"https://pollinations.ai/p/{urllib.parse.quote(draw_prompt)}?width=1024&height=1024&nologo=true"
-            st.image(url, caption=f"Результат: {subject}")
-            st.session_state.messages.append({"role": "assistant", "content": f"Готово! Рисунок на тему: {subject}", "img": url})
+            # Мощный генератор промптов для картинок
+            clean_prompt = prompt.lower().replace("нарисуй", "").strip()
+            final_art_prompt = f"{clean_prompt}, style: {st_art}, {st_size} quality, masterwork"
+            img_url = f"https://pollinations.ai/p/{urllib.parse.quote(final_art_prompt)}?width=1024&height=1024&nologo=true"
+            st.image(img_url)
+            st.session_state.messages.append({"role": "assistant", "content": f"Создано по запросу: {clean_prompt}", "img": img_url})
         else:
-            web_data = ""
-            if any(k in prompt.lower() for k in ["найди", "новости", "кто"]):
+            web_context = ""
+            if any(word in prompt.lower() for word in ["найди", "новости", "кто"]):
                 try:
-                    search = DDGS().text(prompt, max_results=3)
-                    web_data = "\nWEB-ИНФО:\n" + "\n".join([s['body'] for s in search])
+                    results = DDGS().text(prompt, max_results=3)
+                    web_context = "\nДАННЫЕ ИЗ СЕТИ:\n" + "\n".join([r['body'] for r in results])
                 except: pass
 
-            full_instr = f"Ты - АКЫЛМАН. Помогай Исануру. Текст из файлов: {st.session_state.doc_context[:3000]}. {web_data}"
+            system_msg = f"Ты АКЫЛМАН, самый умный ИИ Президентской школы. Используй этот контекст: {st.session_state.doc_context[:8000]}. {web_context}"
             
-            res_area = st.empty(); full_text = ""
+            res_box = st.empty(); full_text = ""
             try:
-                resp = client.chat.completions.create(
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": prompt}],
                     model=model_id,
-                    messages=[{"role": "system", "content": full_instr}, {"role": "user", "content": prompt}],
-                    stream=True
+                    stream=True,
                 )
-                for chunk in resp:
+                for chunk in chat_completion:
                     if chunk.choices[0].delta.content:
                         full_text += chunk.choices[0].delta.content
-                        res_area.markdown(full_text + "▌")
-                res_area.markdown(full_text)
+                        res_box.markdown(full_text + "▌")
+                res_box.markdown(full_text)
                 st.session_state.messages.append({"role": "assistant", "content": full_text})
-                st.session_state.counter += len(full_text.split())
+                st.session_state.tokens_used += len(full_text.split())
             except Exception as e:
-                st.error("Упс! Эта модель сейчас спит. Переключись на 'Скорость (Mistral)' в боковом меню.")
+                st.error(f"Ошибка Groq: {e}")
 
 st.divider()
-c1, c2, c3 = st.columns(3)
-with c1: st.info(f"📍 Статус: {'PRO' if st.session_state.is_pro else 'FREE'}")
-with c2: st.info(f"📊 Слов сегодня: {st.session_state.counter}")
-with c3: st.info(f"📅 Дата: {datetime.date.today()}")
+c1, c2, c3, c4 = st.columns(4)
+with c1: st.write(f"📡 Движок: Groq")
+with c2: st.write(f"🧩 Модель: {model_id}")
+with c3: st.write(f"📊 Слов: {st.session_state.tokens_used}")
+with c4: st.write(f"⏰ {datetime.datetime.now().strftime('%H:%M')}")
