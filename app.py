@@ -3,6 +3,7 @@ import google.generativeai as genai
 import pandas as pd
 from PyPDF2 import PdfReader
 from duckduckgo_search import DDGS
+import urllib.parse
 
 st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠", layout="wide")
 
@@ -33,21 +34,11 @@ if "messages" not in st.session_state:
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
-# АВТО-ПОДБОР РАБОЧЕЙ МОДЕЛИ
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    # Пробуем найти самую лучшую из доступных
-    if 'models/gemini-1.5-flash' in available_models:
-        model_name = 'gemini-1.5-flash'
-    elif 'models/gemini-1.0-pro' in available_models:
-        model_name = 'gemini-1.0-pro'
-    else:
-        model_name = available_models[0].replace('models/', '')
-    
-    model = genai.GenerativeModel(model_name)
+    model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    st.error(f"Ошибка подбора движка: {e}")
+    st.error(f"API Error: {e}")
 
 with st.sidebar:
     st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
@@ -75,6 +66,8 @@ st.title("🧠 АКЫЛМАН AI")
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+        if "image_url" in message:
+            st.image(message["image_url"])
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -82,24 +75,39 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        response_placeholder = st.empty()
-        full_response = ""
-        search_data = ""
-        if any(w in prompt.lower() for w in ["найди", "новости", "инфо"]):
-            try:
-                results = DDGS().text(prompt, max_results=3)
-                search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
-            except: pass
-
-        sys_instr = f"Ты АКЫЛМАН от Исанура. Отвечай на языке пользователя. Помогай с уроками. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
-        
-        try:
-            response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
-            for chunk in response:
-                if chunk.text:
-                    full_response += chunk.text
-                    response_placeholder.markdown(full_response + "▌")
+        if "нарисуй" in prompt.lower():
+            response_placeholder = st.empty()
+            response_placeholder.markdown("🎨 Рисую для вас...")
+            
+            prompt_en_res = model.generate_content(f"Translate to English for image generation (only prompt): {prompt}")
+            prompt_en = prompt_en_res.text.replace('"', '').strip()
+            
+            encoded_prompt = urllib.parse.quote(prompt_en)
+            image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed=42&model=flux"
+            
+            st.image(image_url)
+            full_response = f"Вот ваш рисунок по запросу: '{prompt}'"
+            st.session_state.messages.append({"role": "assistant", "content": full_response, "image_url": image_url})
             response_placeholder.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-        except Exception as e:
-            st.error(f"АКЫЛМАНУ нужно передохнуть 60 секунд. (Ошибка: {e})")
+        else:
+            response_placeholder = st.empty()
+            full_response = ""
+            search_data = ""
+            if any(w in prompt.lower() for w in ["найди", "новости", "инфо"]):
+                try:
+                    results = DDGS().text(prompt, max_results=3)
+                    search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
+                except: pass
+
+            sys_instr = f"Ты АКЫЛМАН от Исанура. Помогай с уроками. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
+            
+            try:
+                response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
+                for chunk in response:
+                    if chunk.text:
+                        full_response += chunk.text
+                        response_placeholder.markdown(full_response + "▌")
+                response_placeholder.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+            except Exception as e:
+                st.error(f"Ошибка: {e}")
