@@ -36,7 +36,7 @@ if "doc_context" not in st.session_state:
 
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-pro')
 except Exception as e:
     st.error(f"API Error: {e}")
 
@@ -53,9 +53,9 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Данные приняты.")
+            st.success("Готов.")
         except Exception as e:
-            st.error(f"Ошибка файла: {e}")
+            st.error(f"Error: {e}")
     if st.button("🗑️ Очистить"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
@@ -77,16 +77,14 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     with st.chat_message("assistant"):
         if "нарисуй" in prompt.lower():
             response_placeholder = st.empty()
-            response_placeholder.markdown("🎨 Рисую для вас...")
+            response_placeholder.markdown("🎨 Рисую...")
             
-            prompt_en_res = model.generate_content(f"Translate to English for image generation (only prompt): {prompt}")
-            prompt_en = prompt_en_res.text.replace('"', '').strip()
-            
-            encoded_prompt = urllib.parse.quote(prompt_en)
+            clean_prompt = prompt.lower().replace("нарисуй", "").strip()
+            encoded_prompt = urllib.parse.quote(clean_prompt)
             image_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed=42&model=flux"
             
             st.image(image_url)
-            full_response = f"Вот ваш рисунок по запросу: '{prompt}'"
+            full_response = f"Готово! Рисунок по запросу: {clean_prompt}"
             st.session_state.messages.append({"role": "assistant", "content": full_response, "image_url": image_url})
             response_placeholder.markdown(full_response)
         else:
@@ -99,7 +97,7 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                     search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
                 except: pass
 
-            sys_instr = f"Ты АКЫЛМАН от Исанура. Помогай с уроками. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
+            sys_instr = f"Ты АКЫЛМАН. Помогай с учебой. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
             
             try:
                 response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
@@ -110,4 +108,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
-                st.error(f"Ошибка: {e}")
+                st.error(f"Ошибка Gemini: {e}. Попробуйте позже.")
