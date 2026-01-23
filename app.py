@@ -2,105 +2,86 @@ import streamlit as st
 from groq import Groq
 from PyPDF2 import PdfReader
 import sqlite3
-import datetime
-import time
 
-class AkylmanSystem:
-    def __init__(self):
-        self.client = Groq(api_key=st.secrets["GROQ_API_KEY"]
-        self.model_70b = "llama-3.3-70b-versatile" 
-        self.model_8b = "llama-3.1-8b-instant"
-            )
-    def get_ai_response(self, prompt, subject, context=""):
-        system_instructions = {
-            "Математика": "Ты профессор математики. Используй LaTeX $x^2$.",
-            "English": "You are an Oxford English Teacher. Correct grammar.",
-            "История": "Ты историк. Рассказывай события как захватывающий сериал."
-        }
-        instr = system_instructions.get(subject, "Ты АКЫЛМАН.")
+st.set_page_config(page_title="AKYLMAN PRO", layout="wide")
+
+def get_db():
+    conn = sqlite3.connect('akylman_memory.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute('CREATE TABLE IF NOT EXISTS messages (role TEXT, content TEXT)')
+    conn.commit()
+    return conn, c
+
+conn, c = get_db()
+
+st.markdown("""
+<style>
+    .stApp { background-color: #050505; color: #e0e0e0; }
+    h1 { color: #00ffcc; text-shadow: 0 0 15px #00ffcc; font-family: sans-serif; }
+    [data-testid="stChatMessage"] { 
+        background: rgba(255, 255, 255, 0.05); 
+        border: 1px solid #00ffcc44; 
+        border-radius: 15px; 
+    }
+    .stChatInputContainer textarea { border: 1px solid #00ffcc !important; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("AKYLMAN V4: SYSTEM ONLINE")
+
+api_key = st.secrets["GROQ_API_KEY"]
+client = Groq(api_key=api_key)
+
+with st.sidebar:
+    st.header("DATABASE")
+    uploaded_files = st.file_uploader("Upload PDF Knowledge", accept_multiple_files=True)
+    knowledge_base = ""
+    if uploaded_files:
+        for pdf_file in uploaded_files:
+            reader = PdfReader(pdf_file)
+            for page in reader.pages:
+                knowledge_base += page.extract_text()
+        st.success("FILES INDEXED")
+
+    if st.button("RESET MEMORY"):
+        c.execute("DELETE FROM messages")
+        conn.commit()
+        st.rerun()
+
+c.execute("SELECT role, content FROM messages")
+for role, text in c.fetchall():
+    with st.chat_message(role):
+        st.markdown(text)
+
+if prompt := st.chat_input("Enter command..."):
+    c.execute("INSERT INTO messages VALUES (?, ?)", ("user", prompt))
+    conn.commit()
+    
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        response_box = st.empty()
+        full_text = ""
         
         try:
-            response = self.client.chat.completions.create(
-                model=self.model_70b,
+            chat_stream = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
                 messages=[
-                    {"role": "system", "content": f"{instr} Контекст из файлов: {context[:5000]}"},
+                    {"role": "system", "content": "You are Akylman. Context: " + knowledge_base[:5000]},
                     {"role": "user", "content": prompt}
                 ],
                 stream=True
             )
-            for chunk in response:
+            
+            for chunk in chat_stream:
                 if chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-        except:
-            response = self.client.chat.completions.create(
-                model=self.model_8b,
-                messages=[{"role": "user", "content": prompt}],
-                stream=True
-            )
-            for chunk in response:
-                if chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-
-def apply_massive_styles():
-    st.markdown("""
-    <style>
-        .stApp { background: #000000; color: #00ffcc; }
-        [data-testid="stChatMessage"] { 
-            border: 1px solid #00ffcc44; 
-            border-radius: 20px; 
-            background: rgba(0, 255, 204, 0.05); 
-        }
-        .stChatInputContainer textarea { border: 1px solid #00ffcc !important; }
-        h1 { text-shadow: 0px 0px 15px #00ffcc; font-family: 'Courier New'; }
-    </style>
-    """, unsafe_allow_html=True)
-
-def init_memory():
-    conn = sqlite3.connect('akylman_v4.db', check_same_thread=False)
-    c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS chat (role TEXT, content TEXT, sub TEXT)')
-    conn.commit()
-    return conn
-
-st.set_page_config(page_title="AKYLMAN MEGA-CORE", layout="wide")
-apply_massive_styles()
-
-if "akylman" not in st.session_state:
-    st.session_state.akylman = AkylmanSystem()
-    st.session_state.memory = init_memory()
-
-st.title("🧠 AKYLMAN PRESIDENTIAL AI [V4.2]")
-
-with st.sidebar:
-    st.header("Настройки")
-    subj = st.selectbox("Предмет:", ["Математика", "English", "История"])
-    files = st.file_uploader("Загрузи знания (PDF):", accept_multiple_files=True)
-    pdf_text = ""
-    if files:
-        for f in files:
-            reader = PdfReader(f)
-            for page in reader.pages:
-                pdf_text += page.extract_text()
-        st.success("База знаний загружена!")
-и
-cursor = st.session_state.memory.cursor()
-cursor.execute('SELECT role, content FROM chat WHERE sub=?', (subj,))
-for r in cursor.fetchall():
-    with st.chat_message(r[0]): st.markdown(r[1])
-
-if prompt := st.chat_input("Напиши АКЫЛМАНУ..."):
-    cursor.execute('INSERT INTO chat VALUES (?, ?, ?)', ("user", prompt, subj))
-    st.session_state.memory.commit()
-    
-    with st.chat_message("user"): st.markdown(prompt)
-    
-    with st.chat_message("assistant"):
-        res_area = st.empty()
-        full_res = ""
-        for chunk in st.session_state.akylman.get_ai_response(prompt, subj, pdf_text):
-            full_res += chunk
-            res_area.markdown(full_res + "▌")
-        res_area.markdown(full_res)
-        
-        cursor.execute('INSERT INTO chat VALUES (?, ?, ?)', ("assistant", full_res, subj))
-        st.session_state.memory.commit()
+                    full_text += chunk.choices[0].delta.content
+                    response_box.markdown(full_text + "▌")
+            
+            response_box.markdown(full_text)
+            c.execute("INSERT INTO messages VALUES (?, ?)", ("assistant", full_text))
+            conn.commit()
+            
+        except Exception as e:
+            st.error(str(e))
