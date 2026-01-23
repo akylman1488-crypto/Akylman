@@ -1,3 +1,7 @@
+import google.generativeai as genai
+for m in genai.list_models():
+    if 'generateContent' in m.supported_generation_methods:
+        st.write(f"Доступная модель: {m.name}")
 import streamlit as st
 import google.generativeai as genai
 import pandas as pd
