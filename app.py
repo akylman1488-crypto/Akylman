@@ -112,7 +112,6 @@ if image_file:
     st.image(image, use_container_width=True)
     st.session_state.image_context = image_to_base64(image)
 
-
     if os.path.exists("logo.png"):
         st.image("logo.png", use_container_width=True)
     
@@ -171,35 +170,35 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
         
         msgs = [{"role": "system", "content": system_msg}] + st.session_state.messages
         try:
-           if st.session_state.image_context:
-            completion = client.chat.completions.create(
-            model="llama-3.2-11b-vision-preview",
-            messages=[
-              {
-                "role": "system",
-                "content": system_msg
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/png;base64,{st.session_state.image_context}"
+            if st.session_state.image_context:
+                completion = client.chat.completions.create(
+                    model="llama-3.2-11b-vision-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": system_msg
+                        },
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/png;base64,{st.session_state.image_context}"
+                                    }
+                                }
+                            ]
                         }
-                    }
-                ]
-            }
-        ],
-        stream=True
-    )
-else:
-    completion = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=msgs,
-        stream=True
-    )
+                    ],
+                    stream=True
+                )
+            else:
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=msgs,
+                    stream=True
+                )
             for chunk in completion:
                 if chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
