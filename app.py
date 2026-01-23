@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import datetime
 import pandas as pd
 from PyPDF2 import PdfReader
 from duckduckgo_search import DDGS
@@ -34,7 +33,7 @@ st.markdown("""
 
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 except Exception as e:
     st.error(f"API Error: {e}")
 
