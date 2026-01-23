@@ -28,11 +28,15 @@ st.markdown("""
     [data-testid="stSidebar"] * { color: #1e1e1e !important; }
     [data-testid="stChatInput"] { background-color: white !important; border-radius: 15px !important; }
     [data-testid="stChatInput"] textarea { color: black !important; }
+    header, [data-testid="stHeader"], [data-testid="stBottom"] > div { background: transparent !important; }
     </style>
     """, unsafe_allow_html=True)
 
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-model = genai.GenerativeModel('gemini-1.5-flash')
+try:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+except Exception as e:
+    st.error(f"Ошибка API: {e}")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -41,17 +45,20 @@ if "doc_context" not in st.session_state:
 
 with st.sidebar:
     st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
-    uploaded_file = st.file_uploader("Материалы (PDF/TXT/CSV)", type=["pdf", "txt", "csv"])
+    uploaded_file = st.file_uploader("Материалы для учебы", type=["pdf", "txt", "csv"])
     if uploaded_file:
-        if uploaded_file.type == "application/pdf":
-            reader = PdfReader(uploaded_file)
-            st.session_state.doc_context = "".join([p.extract_text() for p in reader.pages])
-        elif uploaded_file.type == "text/csv":
-            df = pd.read_csv(uploaded_file)
-            st.session_state.doc_context = df.to_string()
-        else:
-            st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-        st.success("АКЫЛМАН изучил файл!")
+        try:
+            if uploaded_file.type == "application/pdf":
+                reader = PdfReader(uploaded_file)
+                st.session_state.doc_context = "".join([p.extract_text() for p in reader.pages])
+            elif uploaded_file.type == "text/csv":
+                df = pd.read_csv(uploaded_file)
+                st.session_state.doc_context = df.head(50).to_string()
+            else:
+                st.session_state.doc_context = uploaded_file.read().decode("utf-8")
+            st.success("АКЫЛМАН изучил файлы.")
+        except Exception as e:
+            st.error(f"Ошибка: {e}")
     
     if st.button("🗑️ Очистить всё"):
         st.session_state.messages = []
@@ -65,40 +72,4 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        response_placeholder = st.empty()
-        full_response = ""
-        
-        search_data = ""
-        if any(w in prompt.lower() for w in ["найди", "новости", "инфо"]):
-            try:
-                results = DDGS().text(prompt, max_results=3)
-                search_data = "\nСЕТЬ:\n" + "\n".join([r['body'] for r in results])
-            except: pass
-
-        sys_instr = (
-            "Ты АКЫЛМАН, созданный Исануром. Ты обладаешь высшим интеллектом, "
-            "умеешь соболезновать, помогаешь с учебой и всегда отвечаешь на языке пользователя. "
-            f"ДАННЫЕ: {st.session_state.doc_context[:10000]} {search_data}"
-        )
-        
-        try:
-            response = model.generate_content(f"{sys_instr}\n\nПользователь: {prompt}", stream=True)
-            
-            for chunk in response:
-                if chunk.text:
-                    full_response += chunk.text
-                    response_placeholder.markdown(full_response + "▌")
-            
-            response_placeholder.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-            
-        except Exception as e:
-            if "quota" in str(e).lower():
-                st.error("АКЫЛМАНУ нужно 60 секунд на раздумья (лимит). Пожалуйста, подождите.")
-            else:
-                st.error(f"Ошибка: {e}")
+    st.session_state.messages.append({"role": "user", "content":
