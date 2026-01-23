@@ -1,7 +1,3 @@
-import google.generativeai as genai
-for m in genai.list_models():
-    if 'generateContent' in m.supported_generation_methods:
-        st.write(f"Доступная модель: {m.name}")
 import streamlit as st
 import google.generativeai as genai
 import pandas as pd
@@ -37,11 +33,21 @@ if "messages" not in st.session_state:
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
+# АВТО-ПОДБОР РАБОЧЕЙ МОДЕЛИ
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    # Пробуем найти самую лучшую из доступных
+    if 'models/gemini-1.5-flash' in available_models:
+        model_name = 'gemini-1.5-flash'
+    elif 'models/gemini-1.0-pro' in available_models:
+        model_name = 'gemini-1.0-pro'
+    else:
+        model_name = available_models[0].replace('models/', '')
+    
+    model = genai.GenerativeModel(model_name)
 except Exception as e:
-    st.error(f"API Error: {e}")
+    st.error(f"Ошибка подбора движка: {e}")
 
 with st.sidebar:
     st.title("🎛️ ПАНЕЛЬ УПРАВЛЕНИЯ")
@@ -56,9 +62,9 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Файлы загружены.")
+            st.success("Данные приняты.")
         except Exception as e:
-            st.error(f"File Error: {e}")
+            st.error(f"Ошибка файла: {e}")
     if st.button("🗑️ Очистить"):
         st.session_state.messages = []
         st.session_state.doc_context = ""
@@ -85,11 +91,10 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                 search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
             except: pass
 
-        sys_instr = f"Ты АКЫЛМАН, ИИ от Исанура. Отвечай вежливо на языке пользователя. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
+        sys_instr = f"Ты АКЫЛМАН от Исанура. Отвечай на языке пользователя. Помогай с уроками. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
         
         try:
-            chat = model.start_chat(history=[])
-            response = chat.send_message(f"{sys_instr}\n\nВопрос: {prompt}", stream=True)
+            response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
             for chunk in response:
                 if chunk.text:
                     full_response += chunk.text
@@ -97,4 +102,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
             response_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
         except Exception as e:
-            st.error(f"Пожалуйста, попробуй перезагрузить страницу или подождать 60 секунд. Ошибка: {e}")
+            st.error(f"АКЫЛМАНУ нужно передохнуть 60 секунд. (Ошибка: {e})")
