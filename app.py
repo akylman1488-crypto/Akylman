@@ -172,10 +172,10 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
         msgs = [{"role": "system", "content": system_msg}] + st.session_state.messages
         try:
            if st.session_state.image_context:
-    completion = client.chat.completions.create(
-        model="llama-3.2-11b-vision-preview",
-        messages=[
-            {
+            completion = client.chat.completions.create(
+            model="llama-3.2-11b-vision-preview",
+            messages=[
+              {
                 "role": "system",
                 "content": system_msg
             },
