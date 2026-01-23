@@ -1,3 +1,6 @@
+from PIL import Image
+import base64
+import io
 import streamlit as st
 from groq import Groq
 import os
@@ -97,10 +100,18 @@ client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "image_context" not in st.session_state:
+    st.session_state.image_context = None
 if "doc_context" not in st.session_state:
     st.session_state.doc_context = ""
 
 with st.sidebar:
+    image_file = st.file_uploader("Задача на изображении (PNG/JPG)", type=["png", "jpg", "jpeg"])
+ if image_file:
+    image = Image.open(image_file)
+    st.image(image, use_container_width=True)
+    st.session_state.image_context = image_to_base64(image)
+
     if os.path.exists("logo.png"):
         st.image("logo.png", use_container_width=True)
     
@@ -159,7 +170,35 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
         
         msgs = [{"role": "system", "content": system_msg}] + st.session_state.messages
         try:
-            completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=msgs, stream=True)
+           if st.session_state.image_context:
+    completion = client.chat.completions.create(
+        model="llama-3.2-11b-vision-preview",
+        messages=[
+            {
+                "role": "system",
+                "content": system_msg
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{st.session_state.image_context}"
+                        }
+                    }
+                ]
+            }
+        ],
+        stream=True
+    )
+else:
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=msgs,
+        stream=True
+    )
             for chunk in completion:
                 if chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
@@ -169,3 +208,8 @@ if prompt := st.chat_input("Спросите AKYLMAN..."):
             response_placeholder.markdown(f"Ошибка при обработке запроса: {str(e)}")
     
     st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+def image_to_base64(img):
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode()
