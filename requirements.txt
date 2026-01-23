@@ -1,5 +1,5 @@
-duckduckgo-search
-PyPDF2
-groq
-pandas
 google-generativeai
+streamlit
+PyPDF2
+pandas
+duckduckgo-search
