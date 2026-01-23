@@ -35,7 +35,7 @@ if "doc_context" not in st.session_state:
 
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 except Exception as e:
     st.error(f"API Error: {e}")
 
@@ -52,7 +52,7 @@ with st.sidebar:
                 st.session_state.doc_context = df.head(50).to_string()
             else:
                 st.session_state.doc_context = uploaded_file.read().decode("utf-8")
-            st.success("Готов.")
+            st.success("Файлы загружены.")
         except Exception as e:
             st.error(f"File Error: {e}")
     if st.button("🗑️ Очистить"):
@@ -81,10 +81,11 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
                 search_data = "\nWEB:\n" + "\n".join([r['body'] for r in results])
             except: pass
 
-        sys_instr = f"Ты АКЫЛМАН, эмпатичный ИИ от Исанура. Помогай с учебой. Отвечай на языке пользователя. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
+        sys_instr = f"Ты АКЫЛМАН, ИИ от Исанура. Отвечай вежливо на языке пользователя. КОНТЕКСТ: {st.session_state.doc_context[:10000]} {search_data}"
         
         try:
-            response = model.generate_content(f"{sys_instr}\n\nUser: {prompt}", stream=True)
+            chat = model.start_chat(history=[])
+            response = chat.send_message(f"{sys_instr}\n\nВопрос: {prompt}", stream=True)
             for chunk in response:
                 if chunk.text:
                     full_response += chunk.text
@@ -92,9 +93,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
             response_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
         except Exception as e:
-            if "404" in str(e):
-                st.error("Ошибка модели. Попробуй в коде заменить 'gemini-1.5-flash' на 'gemini-pro'.")
-            elif "quota" in str(e).lower():
-                st.error("Лимит. Подожди 60 сек.")
-            else:
-                st.error(f"Error: {e}")
+            st.error(f"Пожалуйста, попробуй перезагрузить страницу или подождать 60 секунд. Ошибка: {e}")
