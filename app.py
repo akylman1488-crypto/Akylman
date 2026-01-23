@@ -10,7 +10,7 @@ class AkylmanSystem:
         self.client = Groq(api_key=st.secrets["GROQ_API_KEY"]
         self.model_70b = "llama-3.3-70b-versatile" 
         self.model_8b = "llama-3.1-8b-instant"
-
+            )
     def get_ai_response(self, prompt, subject, context=""):
         system_instructions = {
             "Математика": "Ты профессор математики. Используй LaTeX $x^2$.",
