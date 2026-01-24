@@ -4,20 +4,20 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* Основной фон как на скрине */
+        /* Установка фона по твоей ссылке */
         .stApp {
-            background: linear-gradient(rgba(14, 38, 64, 0.8), rgba(14, 38, 64, 0.8)), 
-                        url('https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80');
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
             background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
-        /* Светлая боковая панель УПРАВЛЕНИЕ */
+        /* Светлая боковая панель */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
             border-right: 1px solid #ddd;
         }
 
-        /* Заголовок УПРАВЛЕНИЕ */
         .sidebar-title {
             color: #333;
             font-size: 24px;
@@ -28,34 +28,42 @@ class AkylmanUI:
             margin-bottom: 20px;
         }
 
-        /* Логотип по центру */
+        /* Центрирование логотипа */
         .logo-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-top: 50px;
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.4); /* Затемнение под текстом для читаемости */
+            padding: 20px;
+            border-radius: 20px;
         }
         
         .logo-text {
             color: white;
-            font-size: 64px;
+            font-size: 50px;
             font-weight: 900;
-            letter-spacing: 5px;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            margin-top: -20px;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
         }
 
-        .sub-logo {
-            color: #ccc;
-            letter-spacing: 8px;
-            font-size: 18px;
-        }
-
-        /* Поле ввода сообщения внизу */
+        /* ПОЛЕ ВВОДА С ЧЕРНЫМИ КРАЯМИ */
         .stChatInputContainer {
-            border: 2px solid #ff4b4b !important;
-            border-radius: 10px !important;
+            border: 2px solid #000000 !important; /* Черные края */
+            border-radius: 12px !important;
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            padding: 5px !important;
+        }
+        
+        .stChatInputContainer textarea {
+            color: #000 !important;
+        }
+
+        /* Стиль кнопок */
+        .stButton>button {
+            border-radius: 10px;
+            border: 1px solid #000;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -63,9 +71,12 @@ class AkylmanUI:
     def render_centered_logo(self, level_name):
         st.markdown(f"""
         <div class="logo-container">
-            <div style="font-size: 40px;">🧠 AKYLMAN AI ({level_name})</div>
-            <img src="https://i.ibb.co/v4m0YmC/akylman-logo.png" width="250">
+            <div style="color: #00ffcc; font-size: 30px; font-weight: bold; margin-bottom: 10px;">
+                🧠 AKYLMAN AI ({level_name})
+            </div>
             <div class="logo-text">AKYLMAN</div>
-            <div class="sub-logo">PRESIDENTIAL SCHOOL</div>
+            <div style="color: #eee; letter-spacing: 5px; font-size: 14px;">
+                PRESIDENTIAL SCHOOL
+            </div>
         </div>
         """, unsafe_allow_html=True)
