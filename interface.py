@@ -42,7 +42,7 @@ class AkylmanUI:
         }
 
         .stChatInputContainer textarea {
-            color: black !important;
+            color: white !important;
         }
         </style>
         """, unsafe_allow_html=True)
