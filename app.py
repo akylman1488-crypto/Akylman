@@ -4,7 +4,8 @@ from interface import AkylmanUI
 from storage import AkylmanStorage
 from effects import AkylmanFX
 
-st.set_page_config(page_title="AKYLMAN PRO", layout="wide")
+if "messages" not in st.session_state:
+    st.session_state.messages = [] 
 
 if "init" not in st.session_state:
     st.session_state.brain = AkylmanBrain()
@@ -26,35 +27,40 @@ with st.sidebar:
         st.success("✅ ДОСТУП АКТИВИРОВАН")
         available_levels = list(level_map.keys())
     else:
-        st.info("Введите пароль для Pro")
         available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
-    selected_ver = st.selectbox("Версия АКЫЛМАНА:", available_levels)
-    level = level_map[selected_ver]
+    level = level_map[st.selectbox("Версия АКЫЛМАНА:", available_levels)]
     subject = st.selectbox("Выбери урок:", ["Математика", "English", "IT", "Физика"])
-
-    st.markdown("---")
-    st.subheader("Материалы")
-    uploaded_files = st.file_uploader(
-        "Загрузить фото или PDF", 
-        type=["pdf", "png", "jpg", "jpeg", "txt"], 
-        accept_multiple_files=True
-    )
-    
-    if st.button("🗑 Очистить чат"):
-        st.rerun()
 
 ui.render_centered_logo(level)
 
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
     
     with st.chat_message("assistant"):
-        res = ""
+        full_res = ""
         box = st.empty()
-        for chunk in brain.generate_response_stream(prompt, level, subject):
-            if isinstance(chunk, str):
-                res += chunk
-                box.markdown(res + "▌")
-        box.markdown(res)
+        
+        try:
+            for chunk in brain.generate_response_stream(prompt, level, subject):
+                if isinstance(chunk, str):
+                    full_res += chunk
+                    box.markdown(full_res + "▌")
+
+            st.session_state.messages.append({"role": "assistant", "content": full_res})
+            box.markdown(full_res)
+            
+        except Exception as e:
+            if "limit" in str(e).lower() or "429" in str(e):
+                error_msg = "Извините, на сегодня мои лимиты исчерпаны. Пожалуйста, подождите немного или попробуйте позже. Я обязательно помогу вам, как только отдохну! 😊"
+            else:
+                error_msg = f"Произошла ошибка: {str(e)}. Попробуйте обновить страницу."
+            
+            box.markdown(error_msg)
+            st.session_state.messages.append({"role": "assistant", "content": error_msg})
