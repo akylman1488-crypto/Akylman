@@ -1,40 +1,55 @@
 import streamlit as st
+import base64
 
 class AkylmanUI:
-    def apply_styles(self):
-        st.markdown("""
+    def __init__(self):
+        self.primary_color = "#00ffcc"
+        self.secondary_color = "#0099ff"
+        self.bg_color = "#050505"
+        self.sidebar_color = "#0a0a0a"
+
+    def get_base_css(self):
+        return f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        
-        .stApp { background-color: #020202; }
-        
-        .level-card {
-            padding: 10px;
-            border-radius: 10px;
-            border-left: 5px solid #00ffcc;
-            background: #111;
-            margin-bottom: 10px;
-        }
+            @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            color: #00ffcc;
-            text-shadow: 0 0 20px #00ffcc;
-        }
+            :root {{
+                --primary: {self.primary_color};
+                --secondary: {self.secondary_color};
+                --bg: {self.bg_color};
+                --sidebar: {self.sidebar_color};
+            }}
 
-        .stButton>button {
-            width: 100%;
-            background: linear-gradient(90deg, #00ffcc, #0088ff);
-            color: black;
-            border: none;
-            font-family: 'Orbitron';
-        }
+            .stApp {{
+                background-color: var(--bg);
+                font-family: 'Rajdhani', sans-serif;
+            }}
 
-        [data-testid="stSidebar"] {
-            background-color: #0a0a0a !important;
-            border-right: 1px solid #333;
-        }
-        
-        /* Здесь будет еще 400 строк CSS для кнопок, чата и анимаций */
-        </style>
-        """, unsafe_allow_html=True)
+            [data-testid="stSidebar"] {{
+                background-color: var(--sidebar);
+                border-right: 1px solid rgba(0, 255, 204, 0.1);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            }}
+
+            h1, h2, h3 {{
+                font-family: 'Orbitron', sans-serif !important;
+                color: var(--primary) !important;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            }}
+
+            p, div, label, span {{
+                color: #e0e0e0;
+                font-size: 1.05rem;
+            }}
+
+            /* CHAT MESSAGES STYLING */
+            [data-testid="stChatMessage"] {{
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                padding: 15px;
+                margin-bottom: 15px;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
