@@ -5,61 +5,58 @@ from storage import AkylmanStorage
 from effects import AkylmanFX
 from PyPDF2 import PdfReader
 
-# 1. Инициализация систем
-if "init" not in st.session_state:
+st.set_page_config(page_title="AKYLMAN PRO", layout="wide")
+
+if "brain" not in st.session_state:
     st.session_state.brain = AkylmanBrain()
     st.session_state.ui = AkylmanUI()
     st.session_state.db = AkylmanStorage()
     st.session_state.fx = AkylmanFX()
-    st.session_state.session_id = None
-    st.session_state.init = True
+    st.session_state.sid = None
 
-ui, brain, db, fx = st.session_state.ui, st.session_state.brain, st.session_state.db, st.session_state.fx
+ui = st.session_state.ui
+brain = st.session_state.brain
+db = st.session_state.db
+fx = st.session_state.fx
 
-# 2. Настройка интерфейса
 ui.apply_styles()
 fx.inject_particles()
-ui.render_header("AKYLMAN PRO", "PRESIDENTIAL AI SYSTEM")
 
-# 3. Боковая панель
+st.title("AKYLMAN PRO")
+
 with st.sidebar:
-    st.header("CORE CONFIG")
-    subject = st.selectbox("SUBJECT", ["Математика", "English", "История", "IT"])
-    ui.render_level_selector_style()
-    level = st.radio("INTELLIGENCE LEVEL", ["Fast", "Thinking", "Pro", "Plus"])
+    subject = st.selectbox("SUBJECT", ["Математика", "English", "IT"])
+    level = st.radio("LEVEL", ["Fast", "Thinking", "Pro", "Plus"])
+    if not st.session_state.sid:
+        st.session_state.sid = db.create_session(subject, level)
     
-    if st.session_state.session_id is None:
-        st.session_state.session_id = db.create_session(subject, level)
-    
-    with st.expander("KNOWLEDGE UPLOAD"):
-        files = st.file_uploader("Upload PDF", accept_multiple_files=True)
-        if files:
-            for f in files:
-                pdf = PdfReader(f)
-                text = "".join([p.extract_text() for p in pdf.pages])
-                if db.save_document(f.name, text):
-                    fx.show_toast(f"File {f.name} indexed!", "success")
+    files = st.file_uploader("Upload PDF", accept_multiple_files=True)
+    if files:
+        for f in files:
+            reader = PdfReader(f)
+            text = "".join([p.extract_text() for p in reader.pages])
+            db.save_document(f.name, text)
 
-# 4. Чат и логика
-history = db.get_chat_history(st.session_state.session_id)
-for m in history:
-    with st.chat_message(m["role"]): st.markdown(m["content"])
+hist = db.get_chat_history(st.session_state.sid)
+for m in hist:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
 
-if prompt := st.chat_input("Enter command..."):
-    db.save_message(st.session_state.session_id, "user", prompt)
-    with st.chat_message("user"): st.markdown(prompt)
-    
+if p := st.chat_input("Write command..."):
+    db.save_message(st.session_state.sid, "user", p)
+    with st.chat_message("user"):
+        st.markdown(p)
+
     with st.chat_message("assistant"):
-        ui.render_message_loader()
-        context = db.get_full_knowledge_context()
         full_res = ""
         placeholder = st.empty()
+        ctx = db.get_full_knowledge_context()
         
-        for chunk in brain.generate_response_stream(prompt, level, subject, context):
-            full_res += chunk
-            placeholder.markdown(full_res + "▌")
+        # Исправленный цикл для вывода только текста
+        for chunk in brain.generate_response_stream(p, level, subject, ctx):
+            if isinstance(chunk, str):
+                full_res += chunk
+                placeholder.markdown(full_res + "▌")
         
         placeholder.markdown(full_res)
-        db.save_message(st.session_state.session_id, "assistant", full_res, level)
-        fx.play_audio("message")
-        fx.scroll_to_bottom()
+        db.save_message(st.session_state.sid, "assistant", full_res, level)
