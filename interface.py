@@ -6,7 +6,7 @@ class AkylmanUI:
         <style>
         /* 1. ОБЩИЙ ФОН */
         .stApp {
-            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
+            background-image: url("https://abrakadabra.fun/uploads/posts/2022-02/1643881418_3-abrakadabra-fun-p-belii-fon-bez-nichego-na-ves-5.jpg");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
