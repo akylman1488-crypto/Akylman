@@ -4,7 +4,6 @@ from groq import Groq
 class AkylmanBrain:
     def __init__(self):
         self.api_key = st.secrets["GROQ_API_KEY"]
-        # Исправлена скобка, из-за которой был SyntaxError на IMG_1311
         self.client = Groq(api_key=self.api_key)
         
         self.level_configs = {
@@ -27,7 +26,6 @@ class AkylmanBrain:
                 stream=True
             )
             for chunk in stream:
-                # Исправлена распаковка, чтобы не было JSON как на IMG_1316
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
         except Exception as e:
