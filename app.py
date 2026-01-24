@@ -15,7 +15,6 @@ if "init" not in st.session_state:
 
 ui, brain, db, fx = st.session_state.ui, st.session_state.brain, st.session_state.db, st.session_state.fx
 ui.apply_styles()
-fx.inject_particles()
 
 with st.sidebar:
     st.markdown("### ⚙️ УПРАВЛЕНИЕ")
@@ -25,35 +24,37 @@ with st.sidebar:
     
     if password == "AKYLMAN-PRO":
         st.success("✅ ДОСТУП АКТИВИРОВАН")
-        fx.trigger_confetti()
         available_levels = list(level_map.keys())
-    elif password == "":
-        available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     else:
-        st.error("❌ НЕ УДАЛОСЬ: Неверный пароль")
+        st.info("Введите пароль для Pro")
         available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
     selected_ver = st.selectbox("Версия АКЫЛМАНА:", available_levels)
     level = level_map[selected_ver]
     subject = st.selectbox("Выбери урок:", ["Математика", "English", "IT", "Физика"])
 
+    st.markdown("---")
+    st.subheader("Материалы")
+    uploaded_files = st.file_uploader(
+        "Загрузить фото или PDF", 
+        type=["pdf", "png", "jpg", "jpeg", "txt"], 
+        accept_multiple_files=True
+    )
+    
+    if st.button("🗑 Очистить чат"):
+        st.rerun()
+
 ui.render_centered_logo(level)
 
 if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     with st.chat_message("user"):
         st.markdown(prompt)
+    
     with st.chat_message("assistant"):
         res = ""
-        placeholder = st.empty()
+        box = st.empty()
         for chunk in brain.generate_response_stream(prompt, level, subject):
-            res += chunk
-            placeholder.markdown(res + "▌")
-        placeholder.markdown(res)
-
-st.markdown("---")
-st.subheader("Материалы")
-uploaded_files = st.file_uploader(
-    "Загрузить фото или PDF", 
-    type=["pdf", "png", "jpg", "jpeg", "txt"], 
-    accept_multiple_files=True
-)
+            if isinstance(chunk, str):
+                res += chunk
+                box.markdown(res + "▌")
+        box.markdown(res)
