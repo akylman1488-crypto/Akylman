@@ -8,6 +8,19 @@ class AkylmanUI:
         self.bg_color = "#050505"
         self.sidebar_color = "#0a0a0a"
 
+    def render_password_field(self):
+        st.markdown("""
+        <style>
+        .stTextInput input {
+            color: #00ffcc !important;
+            border-color: #00ffcc !important;
+            background: rgba(0, 255, 204, 0.05) !important;
+            font-family: 'Orbitron', sans-serif;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        return st.text_input("ENTER ACCESS KEY:", type="password", placeholder="****")
+    
     def get_base_css(self):
         return f"""
         <style>
