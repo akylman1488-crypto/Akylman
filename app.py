@@ -49,3 +49,11 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
             res += chunk
             placeholder.markdown(res + "▌")
         placeholder.markdown(res)
+
+st.markdown("---")
+st.subheader("Материалы")
+uploaded_files = st.file_uploader(
+    "Загрузить фото или PDF", 
+    type=["pdf", "png", "jpg", "jpeg", "txt"], 
+    accept_multiple_files=True
+)
