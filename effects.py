@@ -21,8 +21,13 @@ class AkylmanFX:
         </script>
         """, height=0)
 
+    def trigger_confetti(self):
+        components.html("""
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        <script>
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00ffcc', '#ffffff'] });
+        </script>
+        """, height=0)
+
     def play_audio(self):
         st.markdown("""<audio autoplay><source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg"></audio>""", unsafe_allow_html=True)
-
-    def scroll_bottom(self):
-        st.components.v1.html("<script>window.parent.document.querySelector('.main').scrollTo(0, 99999);</script>", height=0)
