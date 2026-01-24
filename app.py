@@ -19,12 +19,26 @@ with st.sidebar:
 
     password = st.text_input("Пароль для Pro:", type="password")
 
-    level_map = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Pro": "Pro", "🔥 Plus": "Plus"}
-    if password == "AKYLMAN-PRO":
+    level_map = {
+        "🚀 Быстрая (Flash)": "Fast", 
+        "🧠 Думающая": "Thinking", 
+        "💎 Pro": "Pro", 
+        "🔥 Plus": "Plus"
+    }
+
+    if password == "":
+        st.info("Введите пароль для Pro версий")
+        available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    elif password == "AKYLMAN-PRO":
+        st.success("✅ ДОСТУП АКТИВИРОВАН")
         available_levels = list(level_map.keys())
+        fx.trigger_confetti() # Если хочешь эффект конфетти при успехе
     else:
+        st.error("❌ НЕ УДАЛОСЬ: Неверный пароль")
         available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
+    st.markdown("---")
+
     selected_ver = st.selectbox("Версия АКЫЛМАНА:", available_levels)
     level = level_map[selected_ver]
 
@@ -34,21 +48,6 @@ with st.sidebar:
     st.subheader("Материалы")
     uploaded_file = st.file_uploader("Drag and drop file here", type=["pdf", "txt", "csv"])
     
-    if st.button("🗑 Очистить"):
+    if st.button("🗑 Очистить чат"):
+        db.clear_session_memory(st.session_state.sid)
         st.rerun()
-
-ui.render_centered_logo(level)
-
-if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    with st.chat_message("assistant"):
-        res = ""
-        box = st.empty()
-        # Вызов ИИ из brain.py
-        for chunk in brain.generate_response_stream(prompt, level, subject, ""):
-            if isinstance(chunk, str):
-                res += chunk
-                box.markdown(res + "▌")
-        box.markdown(res)
