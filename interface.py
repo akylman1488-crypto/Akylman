@@ -4,7 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН САЙТА */
+        /* 1. ОБЩИЙ ФОН */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -12,16 +12,19 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. УПРАВЛЕНИЕ ХЕДЕРОМ И ФУТЕРОМ */
+        /* 2. КНОПКА ПАНЕЛИ (СДЕЛАЛ ВИДИМОЙ) */
         header[data-testid="stHeader"] {
             background-color: rgba(0,0,0,0) !important;
         }
+        
+        /* Скрываем только лишние иконки справа */
         header [data-testid="stHeaderActionElements"] {
             display: none !important;
         }
+
         footer { visibility: hidden; }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ (СВЕТЛО-СЕРАЯ) */
+        /* 3. БОКОВАЯ ПАНЕЛЬ */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
         }
@@ -29,46 +32,36 @@ class AkylmanUI:
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
-            color: #000000 !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
         }
 
-        /* 4. ПОЛЕ ПАРОЛЯ (КРАСНАЯ ОБЛАСТЬ): ТЕКСТ БЕЛЫЙ */
+        /* 4. КРАСНАЯ ОБЛАСТЬ (ВВОД ПАРОЛЯ): ФОН ТЕМНЫЙ, ТЕКСТ БЕЛЫЙ */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
-            background-color: #1e1e1e !important;
+            background-color: #1e1e1e !important; /* Темный фон как на фото */
             border: none !important;
             border-radius: 10px !important;
         }
         [data-testid="stSidebar"] input {
-            color: #ffffff !important;
+            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
         }
 
-        /* 5. ВЫБОР МОДЕЛИ И УРОКА (СИНЯЯ ОБЛАСТЬ): ТЕКСТ ЧЕРНЫЙ */
-        /* Принудительно задаем черный цвет для текста в селектах */
+        /* 5. СИНЯЯ ОБЛАСТЬ (ВЫБОР УРОКА): ФОН СВЕТЛЫЙ, ТЕКСТ ЧЕРНЫЙ */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
+            background-color: #ffffff !important; /* Светлый фон */
             border: none !important;
             border-radius: 10px !important;
         }
-        
-        /* Основной текст в поле выбора */
-        [data-testid="stSidebar"] div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] div[data-baseweb="select"] span {
-            color: #000000 !important;
-            font-weight: 600 !important;
-        }
-
-        /* Цвет текста в выпадающем списке при нажатии */
-        div[data-baseweb="popover"] li {
-            color: #000000 !important;
+            color: #000000 !important; /* ТЕКСТ ЧЕРНЫЙ */
         }
         
-        /* Иконки (стрелочки и глаз) */
+        /* Иконка глаза и стрелочки */
         [data-testid="stSidebar"] svg {
-            fill: #000000 !important;
+            fill: #888 !important;
         }
 
-        /* 6. ЧАТ И СООБЩЕНИЯ */
+        /* 6. ЧАТ */
         [data-testid="stChatMessage"] {
             background-color: rgba(0, 0, 0, 0.75) !important;
             border-radius: 15px;
@@ -86,7 +79,7 @@ class AkylmanUI:
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
             <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
             <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
             <div style="color: #ccc; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
