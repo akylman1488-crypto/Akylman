@@ -4,32 +4,32 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* Фон всего приложения */
+        /* ГЛОБАЛЬНЫЙ ФОН (твоя новая ссылка) */
         .stApp {
-            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
+            background-image: url("https://abrakadabra.fun/uploads/posts/2022-02/1643881418_3-abrakadabra-fun-p-belii-fon-bez-nichego-na-ves-5.jpg");
             background-size: cover;
             background-attachment: fixed;
         }
 
-        /* ЗЕЛЕНАЯ ОБЛАСТЬ: Белый верх и низ */
+        /* ЗЕЛЕНАЯ ЗОНА: Белый верх и низ */
         header[data-testid="stHeader"], footer {
             background-color: #ffffff !important;
         }
 
-        /* СИНЯЯ ОБЛАСТЬ (Тулбар): Черный фон */
+        /* СИНЯЯ ЗОНА (Кнопки вверху): Черный фон */
         [data-testid="stToolbar"] {
             background-color: #000000 !important;
             border-radius: 8px;
         }
         [data-testid="stToolbar"] svg { fill: white !important; }
 
-        /* БОКОВАЯ ПАНЕЛЬ: Полностью черная */
+        /* БОКОВАЯ ПАНЕЛЬ: Темная, как на образце */
         [data-testid="stSidebar"] {
-            background-color: #000000 !important;
-            border-right: 1px solid #333;
+            background-color: #262730 !important;
+            border-right: 1px solid #444;
         }
 
-        /* Текст в панели: Всегда белый */
+        /* Весь текст в панели — белый */
         [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, 
         [data-testid="stSidebar"] label, [data-testid="stSidebar"] h3 {
             color: #ffffff !important;
@@ -45,7 +45,7 @@ class AkylmanUI:
             width: 100%;
         }
 
-        /* Зеленая плашка статуса */
+        /* Зеленая плашка "Доступ активен" */
         .status-box {
             background-color: rgba(144, 238, 144, 0.2);
             border: 1px solid #90ee90;
@@ -54,20 +54,29 @@ class AkylmanUI:
             border-radius: 8px;
             text-align: center;
             margin-bottom: 15px;
+            font-weight: bold;
         }
 
-        /* Поле ввода сообщения: Черная рамка */
+        /* Поля выбора и ввода в темной панели */
+        [data-testid="stSidebar"] div[role="listbox"], 
+        [data-testid="stSidebar"] input {
+            background-color: #1e1e1e !important;
+            color: white !important;
+            border: 1px solid #555 !important;
+        }
+
+        /* Сообщения в чате: Темно-серый фон */
+        [data-testid="stChatMessage"] {
+            background-color: rgba(50, 50, 50, 0.9) !important;
+            border-radius: 15px !important;
+        }
+        [data-testid="stChatMessage"] p { color: white !important; }
+
+        /* Поле ввода внизу: Черная рамка */
         .stChatInputContainer {
             border: 2px solid #000000 !important;
             background: white !important;
         }
-        
-        /* Чат-сообщения: Серый фон */
-        [data-testid="stChatMessage"] {
-            background-color: rgba(50, 50, 50, 0.85) !important;
-            border-radius: 15px !important;
-        }
-        [data-testid="stChatMessage"] p { color: white !important; }
         </style>
         """, unsafe_allow_html=True)
 
