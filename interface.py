@@ -4,7 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН И КНОПКА ПАНЕЛИ */
+        /* 1. ФОН И ИНТЕРФЕЙС */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -18,7 +18,6 @@ class AkylmanUI:
         /* 2. БОКОВАЯ ПАНЕЛЬ */
         [data-testid="stSidebar"] { background-color: #f0f2f6 !important; }
         
-        /* Заголовки — Чёрные */
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
@@ -26,7 +25,7 @@ class AkylmanUI:
             font-weight: 700 !important;
         }
 
-        /* 3. ПАРОЛЬ — ТЕКСТ БЕЛЫЙ */
+        /* 3. ПОЛЕ ПАРОЛЯ — ТЕКСТ И ГЛАЗИК БЕЛЫЕ */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
             background-color: #1e1e1e !important;
             border: none !important;
@@ -36,31 +35,36 @@ class AkylmanUI:
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
+        /* ДЕЛАЕМ ГЛАЗИК БЕЛЫМ */
+        [data-testid="stSidebar"] div[data-baseweb="input"] svg {
+            fill: #ffffff !important;
+        }
 
-        /* 4. ВЫБОР МОДЕЛИ И УРОКА — ТЕКСТ ТОЛЬКО ЧЁРНЫЙ */
+        /* 4. ВЫБОР МОДЕЛИ И УРОКА — ТЕКСТ ЧЁРНЫЙ */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
             border: none !important;
             border-radius: 10px !important;
         }
-        /* Принудительно черный цвет для текста в селектах */
         [data-testid="stSidebar"] div[data-baseweb="select"] span,
-        [data-testid="stSidebar"] div[data-baseweb="select"] p,
-        [data-testid="stSidebar"] div[data-baseweb="select"] div {
+        [data-testid="stSidebar"] div[data-baseweb="select"] p {
             color: #000000 !important;
             -webkit-text-fill-color: #000000 !important;
         }
+        /* Стрелочки в списках оставляем чёрными */
+        [data-testid="stSidebar"] div[data-baseweb="select"] svg {
+            fill: #000000 !important;
+        }
 
-        /* 5. КРАСНАЯ ЗОНА (ЗАГРУЗКА И ОЧИСТКА) — ТЕКСТ БЕЛЫЙ */
+        /* 5. ЗАГРУЗКА И ОЧИСТКА — ТЕКСТ БЕЛЫЙ */
         [data-testid="stFileUploadDropzone"] {
             background-color: #1e1e1e !important;
             border: none !important;
             border-radius: 10px !important;
         }
         [data-testid="stFileUploadDropzone"] p, 
-        [data-testid="stFileUploadDropzone"] span,
-        [data-testid="stFileUploadDropzone"] div {
-            color: #ffffff !important; /* ТУТ БЕЛЫЙ */
+        [data-testid="stFileUploadDropzone"] span {
+            color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
         
@@ -69,22 +73,17 @@ class AkylmanUI:
             border: none !important;
             width: 100%;
         }
-        /* Текст внутри кнопки очистки */
-        [data-testid="stSidebar"] .stButton button p,
-        [data-testid="stSidebar"] .stButton button div {
-            color: #ffffff !important; /* ТУТ БЕЛЫЙ */
-            -webkit-text-fill-color: #ffffff !important;
+        [data-testid="stSidebar"] .stButton button p {
+            color: #ffffff !important;
+        }
+        [data-testid="stSidebar"] .stButton button svg {
+            fill: #ffffff !important;
         }
 
         /* Чат */
         [data-testid="stChatMessage"] { background-color: rgba(0, 0, 0, 0.75) !important; border-radius: 15px; }
         [data-testid="stChatMessage"] p { color: #ffffff !important; }
         .stChatInputContainer { background-color: rgba(255,255,255,0.95) !important; border-radius: 12px; }
-        
-        /* Иконки — Чёрные там, где белый фон */
-        [data-testid="stSidebar"] svg { fill: #000000 !important; }
-        /* Иконки внутри темных кнопок — Белые */
-        [data-testid="stSidebar"] .stButton button svg { fill: #ffffff !important; }
         </style>
         """, unsafe_allow_html=True)
 
