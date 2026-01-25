@@ -19,8 +19,8 @@ with st.sidebar:
         pw = st.text_input("Пароль для Pro:", type="password")
         if pw == "AKYLMAN-PRO":
             st.session_state.auth = True
-            st.balloons()  # <--- ВСПЫШКА КОНФЕТТИ ЗДЕСЬ 🎉
-            time.sleep(1)  # Небольшая пауза, чтобы увидеть салют перед перезагрузкой
+            st.balloons()
+            time.sleep(1)
             st.rerun()
     else:
         st.success("Доступ активен ✅")
@@ -28,7 +28,7 @@ with st.sidebar:
             st.session_state.auth = False
             st.rerun()
 
-    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "⚡️Pro": "Pro",  "💎 Plus (Умная)": "Plus"}
+    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "⚡️Pro": "Pro", "💎 Plus (Умная)": "Plus"}
     active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
     ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
