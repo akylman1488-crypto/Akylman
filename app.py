@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from brain import AkylmanBrain
 from interface import AkylmanUI
 
@@ -13,14 +14,16 @@ ui.apply_styles()
 
 with st.sidebar:
     st.markdown("### ⊞ УПРАВЛЕНИЕ")
-
+    
     if not st.session_state.auth:
         pw = st.text_input("Пароль для Pro:", type="password")
         if pw == "AKYLMAN-PRO":
             st.session_state.auth = True
+            st.balloons()  # <--- ВСПЫШКА КОНФЕТТИ ЗДЕСЬ 🎉
+            time.sleep(1)  # Небольшая пауза, чтобы увидеть салют перед перезагрузкой
             st.rerun()
     else:
-        st.markdown('<div class="status-box">Доступ активен ✅</div>', unsafe_allow_html=True)
+        st.success("Доступ активен ✅")
         if st.button("Выйти"):
             st.session_state.auth = False
             st.rerun()
@@ -42,7 +45,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.subheader("Материалы")
-    st.file_uploader("Drag and drop file here", type=["pdf", "png", "jpg"], accept_multiple_files=True)
+    st.file_uploader("Загрузить файлы", type=["pdf", "png", "jpg"], accept_multiple_files=True)
     
     if st.button("🗑 Очистить чат"):
         st.session_state.messages = []
