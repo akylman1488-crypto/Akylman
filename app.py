@@ -4,8 +4,8 @@ from interface import AkylmanUI
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+if "auth" not in st.session_state:
+    st.session_state.auth = False
 
 ui = AkylmanUI()
 brain = AkylmanBrain()
@@ -14,26 +14,28 @@ ui.apply_styles()
 with st.sidebar:
     st.markdown("### ⊞ УПРАВЛЕНИЕ")
     
-    if not st.session_state.authenticated:
-        password = st.text_input("Пароль для Pro:", type="password")
-        if password == "AKYLMAN-PRO":
-            st.session_state.authenticated = True
+    if not st.session_state.auth:
+        pw = st.text_input("Пароль для Pro:", type="password")
+        if pw == "AKYLMAN-PRO":
+            st.session_state.auth = True
             st.rerun()
     else:
         st.markdown('<div class="status-box">Доступ активен ✅</div>', unsafe_allow_html=True)
         if st.button("Выйти"):
-            st.session_state.authenticated = False
+            st.session_state.auth = False
             st.rerun()
 
-    level_map = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
-    available_levels = list(level_map.keys()) if st.session_state.authenticated else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
+    active_levels = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    
+    ver = st.selectbox("Версия АКЫЛМАНА:", active_levels)
+    level = levels[ver]
 
-    level = level_map[st.selectbox("Версия АКЫЛМАНА:", available_levels)]
-    subject = st.selectbox("Выбери урок:", ["Математика", "English", "IT", "Физика"])
+    subject = st.selectbox("Выбери урок:", ["Математика", "ICT", "Физика", "История", "English", "Биология"])
 
     st.markdown("---")
     st.subheader("Материалы")
-    st.file_uploader("Загрузить фото или PDF", type=["pdf", "png", "jpg"], accept_multiple_files=True)
+    st.file_uploader("Drag and drop file here", type=["pdf", "png", "jpg"], accept_multiple_files=True)
     
     if st.button("🗑 Очистить чат"):
         st.session_state.messages = []
@@ -51,14 +53,14 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         st.markdown(prompt)
     
     with st.chat_message("assistant"):
-        res = ""
-        box = st.empty()
+        full_res = ""
+        placeholder = st.empty()
         try:
             for chunk in brain.generate_response_stream(prompt, level, subject):
-                res += chunk
-                box.markdown(res + "▌")
-            st.session_state.messages.append({"role": "assistant", "content": res})
-            box.markdown(res)
+                full_res += chunk
+                placeholder.markdown(full_res + "▌")
+            st.session_state.messages.append({"role": "assistant", "content": full_res})
+            placeholder.markdown(full_res)
         except Exception as e:
             msg = "Лимит исчерпан. Пожалуйста, подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
-            box.markdown(msg)
+            placeholder.markdown(msg)
