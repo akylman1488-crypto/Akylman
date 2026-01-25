@@ -1,51 +1,47 @@
 import streamlit as st
 from brain import AkylmanBrain
 from interface import AkylmanUI
-from storage import AkylmanStorage
-from effects import AkylmanFX
 
+# Инициализация
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
 
-if "init" not in st.session_state:
-    st.session_state.brain = AkylmanBrain()
-    st.session_state.ui = AkylmanUI()
-    st.session_state.db = AkylmanStorage()
-    st.session_state.fx = AkylmanFX()
-    st.session_state.init = True
-
-ui, brain, db, fx = st.session_state.ui, st.session_state.brain, st.session_state.db, st.session_state.fx
+ui = AkylmanUI()
+brain = AkylmanBrain()
 ui.apply_styles()
 
+# --- БОКОВАЯ ПАНЕЛЬ ---
 with st.sidebar:
-    st.markdown("### ⚙️ УПРАВЛЕНИЕ")
-    password = st.text_input("Пароль для Pro:", type="password")
+    st.markdown("### ⊞ УПРАВЛЕНИЕ")
     
-    level_map = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Pro": "Pro", "🔥 Plus": "Plus"}
-    
-    if password == "AKYLMAN-PRO":
-        st.success("✅ ДОСТУП АКТИВИРОВАН")
-        available_levels = list(level_map.keys())
+    if not st.session_state.authenticated:
+        password = st.text_input("Пароль для Pro:", type="password")
+        if password == "AKYLMAN-PRO":
+            st.session_state.authenticated = True
+            st.rerun()
     else:
-        available_levels = ["🚀 Быстрая (Flash)", "🧠 Думающая"]
-    
-    selected_ver = st.selectbox("Версия АКЫЛМАНА:", available_levels)
-    level = level_map[selected_ver]
+        st.markdown('<div class="status-box">Доступ активен ✅</div>', unsafe_allow_html=True)
+        if st.button("Выйти"):
+            st.session_state.authenticated = False
+            st.rerun()
+
+    level_map = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
+    available_levels = list(level_map.keys()) if st.session_state.authenticated else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+
+    level = level_map[st.selectbox("Версия АКЫЛМАНА:", available_levels)]
     subject = st.selectbox("Выбери урок:", ["Математика", "English", "IT", "Физика"])
 
     st.markdown("---")
     st.subheader("Материалы")
-    uploaded_files = st.file_uploader(
-        "Загрузить фото или PDF", 
-        type=["pdf", "png", "jpg", "jpeg", "txt"], 
-        accept_multiple_files=True,
-        key="file_manager"
-    )
+    st.file_uploader("Загрузить фото или PDF", type=["pdf", "png", "jpg"], accept_multiple_files=True)
     
     if st.button("🗑 Очистить чат"):
         st.session_state.messages = []
         st.rerun()
 
+# --- ОСНОВНОЙ ЧАТ ---
 ui.render_centered_logo(level)
 
 for m in st.session_state.messages:
@@ -62,11 +58,10 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         box = st.empty()
         try:
             for chunk in brain.generate_response_stream(prompt, level, subject):
-                if isinstance(chunk, str):
-                    res += chunk
-                    box.markdown(res + "▌")
+                res += chunk
+                box.markdown(res + "▌")
             st.session_state.messages.append({"role": "assistant", "content": res})
             box.markdown(res)
         except Exception as e:
-            msg = "Извините, лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
+            msg = "Лимит исчерпан. Пожалуйста, подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
             box.markdown(msg)
