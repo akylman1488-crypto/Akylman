@@ -4,58 +4,54 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. БЕЛЫЙ ФОН ВСЕГО САЙТА */
+        /* 1. ОБЩИЙ ФОН */
         .stApp {
-            background-image: url("https://abrakadabra.fun/uploads/posts/2022-02/1643881418_3-abrakadabra-fun-p-belii-fon-bez-nichego-na-ves-5.jpg");
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
             background-size: cover;
+            background-position: center;
             background-attachment: fixed;
         }
 
-        /* 2. ВЕРХНЯЯ ПОЛОСА: Белая */
-        header[data-testid="stHeader"] {
-            background-color: #ffffff !important;
-        }
-
-        /* 3. БОКОВАЯ ПАНЕЛЬ (Синяя зона на чертеже) */
-        [data-testid="stSidebar"] {
-            background-color: #f0f2f6 !important; /* Светло-серый фон */
-            border-right: 2px solid #000000;
-        }
-
-        /* ТЕКСТ В ПАНЕЛИ: СДЕЛАЛ ЧЕРНЫМ */
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] span, 
-        [data-testid="stSidebar"] label, 
-        [data-testid="stSidebar"] h3 {
-            color: #000000 !important;
-            font-weight: bold !important;
-        }
-
-        /* ПОЛЯ ВВОДА В ПАНЕЛИ */
-        [data-testid="stSidebar"] input, 
-        [data-testid="stSidebar"] select,
-        [data-testid="stSidebar"] div[data-baseweb="select"] {
+        /* 2. ЗЕЛЕНАЯ ОБЛАСТЬ (Верх и Низ): Делаем БЕЛЫМ */
+        header[data-testid="stHeader"], 
+        footer, 
+        .stApp > header {
             background-color: #ffffff !important;
             color: #000000 !important;
-            border: 1px solid #000000 !important;
         }
 
-        /* Кнопки Очистить/Выйти */
-        [data-testid="stSidebar"] button {
+        /* 3. СИНЯЯ ОБЛАСТЬ (Кнопки Share, Github и др.): Делаем ЧЕРНЫМ */
+        [data-testid="stToolbar"], 
+        .stActionButton, 
+        button[title="View source on GitHub"],
+        [data-testid="stStatusWidget"] {
             background-color: #000000 !important;
             color: #ffffff !important;
-            border-radius: 8px !important;
+            border-radius: 5px;
+        }
+        
+        /* Исправляем цвет иконок в синей области, чтобы они были видны на черном */
+        [data-testid="stToolbar"] svg {
+            fill: #ffffff !important;
         }
 
-        /* 4. ОСНОВНОЙ ЧАТ */
+        /* 4. СИНЯЯ ЗОНА (Боковая панель): Текст белый, как ты просил ранее */
+        [data-testid="stSidebar"] {
+            background-color: rgba(20, 30, 45, 0.9) !important;
+        }
+        
+        [data-testid="stSidebar"] * {
+            color: #ffffff !important;
+        }
+
+        /* 5. СООБЩЕНИЯ: Одинаковый фон для Красной и Желтой зоны */
         [data-testid="stChatMessage"] {
-            background-color: #ffffff !important;
-            border: 1px solid #ddd !important;
-            border-radius: 15px !important;
+            background-color: rgba(60, 60, 60, 0.8) !important;
+            border-radius: 12px !important;
+            margin-bottom: 10px !important;
         }
-        [data-testid="stChatMessage"] p { color: #000000 !important; }
 
-        /* Поле ввода внизу */
+        /* 6. ПОЛЕ ВВОДА: Черные края */
         .stChatInputContainer {
             border: 2px solid #000000 !important;
             background: #ffffff !important;
@@ -64,10 +60,10 @@ class AkylmanUI:
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
-        st.markdown(f'''
-        <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px; border: 1px solid #000; margin-bottom: 20px;">
-            <div style="color: #000; font-size: 18px;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: #000; font-size: 40px; font-weight: 900;">AKYLMAN</div>
-            <div style="color: #666; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
+        st.markdown(f"""
+        <div style="display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.7); padding: 20px; border-radius: 20px; margin: 10px auto; max-width: 600px;">
+            <div style="color: #00ffcc; font-size: 20px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
+            <div style="color: white; font-size: 40px; font-weight: 900;">AKYLMAN</div>
+            <div style="color: #aaa; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
         </div>
-        ''', unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
