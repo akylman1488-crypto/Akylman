@@ -28,7 +28,7 @@ with st.sidebar:
             st.session_state.auth = False
             st.rerun()
 
-    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "⚡️Pro": "Pro" "💎 Plus (Умная)": "Plus"}
+    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "⚡️Pro": "Pro",  "💎 Plus (Умная)": "Plus"}
     active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
     ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
