@@ -4,7 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН САЙТА (Твоя ссылка) */
+        /* 1. ФОН САЙТА (Твоя техно-ссылка) */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -12,80 +12,73 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. ЗЕЛЕНАЯ ЗОНА (Боковая панель): СВЕТЛО-СЕРЫЙ ФОН */
+        /* 2. БОКОВАЯ ПАНЕЛЬ: СВЕТЛО-СЕРАЯ */
         [data-testid="stSidebar"] {
-            background-color: #e0e2e6 !important; /* Светло-серый */
-            border-right: 1px solid #ccc;
-        }
-
-        /* Текст в боковой панели (Заголовки): Черный */
-        [data-testid="stSidebar"] h1, 
-        [data-testid="stSidebar"] h2, 
-        [data-testid="stSidebar"] h3, 
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] label {
-            color: #000000 !important;
-            font-weight: 600 !important;
-        }
-
-        /* 3. КРАСНАЯ ЗОНА (Поля ввода): ТЕКСТ ЧЕРНЫЙ */
-        [data-testid="stSidebar"] input, 
-        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            color: #000000 !important; /* Текст черный */
-            border: 1px solid #000000 !important;
-            border-radius: 8px !important;
-        }
-        /* Цвет текста внутри выпадающего списка */
-        [data-testid="stSidebar"] div[data-baseweb="select"] span {
-            color: #000000 !important;
-        }
-
-        /* 4. СИНЯЯ ЗОНА (Сообщения): ТЕКСТ БЕЛЫЙ */
-        [data-testid="stChatMessage"] {
-            background-color: rgba(0, 0, 0, 0.7) !important; /* Темная подложка */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
+            background-color: #f0f2f6 !important;
+            border-right: 1px solid #ddd;
         }
         
+        /* Заголовки в панели - Черные */
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
+        [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+            color: #000000 !important;
+            font-weight: 700 !important;
+        }
+
+        /* 3. ПОЛЯ ВВОДА (Красная зона на фото): БЕЗ ЛИНИЙ */
+        /* Убираем рамки (lines) у текстового поля и выпадающего списка */
+        [data-testid="stSidebar"] div[data-baseweb="input"],
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+            background-color: #ffffff !important;
+            border: none !important;  /* УДАЛИЛ ЛИНИИ */
+            border-radius: 10px !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important; /* Легкая тень вместо рамки */
+        }
+
+        /* Текст внутри полей - ЧЕРНЫЙ */
+        [data-testid="stSidebar"] input, 
+        [data-testid="stSidebar"] div[data-baseweb="select"] span {
+            color: #000000 !important; 
+            font-weight: 500 !important;
+        }
+        
+        /* Стрелочка в выпадающем списке - Черная */
+        [data-testid="stSidebar"] svg {
+            fill: #000000 !important;
+        }
+
+        /* 4. ЧАТ (Синяя зона): ТЕКСТ БЕЛЫЙ */
+        [data-testid="stChatMessage"] {
+            background-color: rgba(0, 0, 0, 0.75) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
         [data-testid="stChatMessage"] p, 
-        [data-testid="stChatMessage"] li, 
         [data-testid="stChatMessage"] div {
-            color: #ffffff !important; /* Текст белый */
+            color: #ffffff !important;
         }
 
-        /* Зеленая плашка "Доступ активен" */
-        .status-box {
-            background-color: #d4edda;
-            color: #155724 !important;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #c3e6cb;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        /* Кнопки в панели */
+        /* Кнопки */
         .stButton>button {
             background-color: #ffffff !important;
             color: #000000 !important;
-            border: 1px solid #000000 !important;
+            border: none !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Поле ввода сообщения внизу */
+        /* Поле ввода внизу */
         .stChatInputContainer {
-            background-color: rgba(255, 255, 255, 0.9) !important;
-            border-radius: 10px;
+            background-color: rgba(255,255,255,0.95) !important;
+            border-radius: 12px;
         }
         </style>
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
+        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
             <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
             <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
-            <div style="color: #ddd; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
+            <div style="color: #ccc; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
         </div>
         ''', unsafe_allow_html=True)
