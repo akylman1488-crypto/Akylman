@@ -4,7 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН САЙТА */
+        /* 1. ОБЩИЙ ФОН */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -12,31 +12,23 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. ВОЗВРАЩАЕМ КНОПКУ ПАНЕЛИ */
-        /* Вместо скрытия всего хедера, делаем его прозрачным */
+        /* 2. КНОПКА ПАНЕЛИ (СДЕЛАЛ ВИДИМОЙ) */
         header[data-testid="stHeader"] {
             background-color: rgba(0,0,0,0) !important;
-            color: white !important;
         }
         
-        /* Скрываем только кнопки справа (Share, Deploy), чтобы не мешали */
+        /* Скрываем только лишние иконки справа */
         header [data-testid="stHeaderActionElements"] {
             display: none !important;
         }
 
-        /* Убираем футер (красная зона снизу) */
-        footer {
-            visibility: hidden;
-            height: 0px;
-        }
+        footer { visibility: hidden; }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ (Светло-серая) */
+        /* 3. БОКОВАЯ ПАНЕЛЬ */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
-            border-right: none !important;
         }
         
-        /* Текст в панели - Черный */
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
@@ -44,44 +36,50 @@ class AkylmanUI:
             font-weight: 700 !important;
         }
 
-        /* 4. ПОЛЯ ВВОДА (БЕЗ ЛИНИЙ И РАМОК) */
-        [data-testid="stSidebar"] div[data-baseweb="input"],
-        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            border: none !important; /* УДАЛЕНЫ ЛИНИИ */
+        /* 4. КРАСНАЯ ОБЛАСТЬ (ВВОД ПАРОЛЯ): ФОН ТЕМНЫЙ, ТЕКСТ БЕЛЫЙ */
+        [data-testid="stSidebar"] div[data-baseweb="input"] {
+            background-color: #1e1e1e !important; /* Темный фон как на фото */
+            border: none !important;
             border-radius: 10px !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+        }
+        [data-testid="stSidebar"] input {
+            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
         }
 
-        [data-testid="stSidebar"] input, 
+        /* 5. СИНЯЯ ОБЛАСТЬ (ВЫБОР УРОКА): ФОН СВЕТЛЫЙ, ТЕКСТ ЧЕРНЫЙ */
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+            background-color: #ffffff !important; /* Светлый фон */
+            border: none !important;
+            border-radius: 10px !important;
+        }
         [data-testid="stSidebar"] div[data-baseweb="select"] span {
-            color: #000000 !important; 
-            font-weight: 500 !important;
+            color: #000000 !important; /* ТЕКСТ ЧЕРНЫЙ */
+        }
+        
+        /* Иконка глаза и стрелочки */
+        [data-testid="stSidebar"] svg {
+            fill: #888 !important;
         }
 
-        /* 5. ЧАТ (БЕЛЫЙ ТЕКСТ НА ТЕМНОМ ФОНЕ) */
+        /* 6. ЧАТ */
         [data-testid="stChatMessage"] {
             background-color: rgba(0, 0, 0, 0.75) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
         }
-        [data-testid="stChatMessage"] p, 
-        [data-testid="stChatMessage"] div {
+        [data-testid="stChatMessage"] p {
             color: #ffffff !important;
         }
 
-        /* Поле ввода внизу */
         .stChatInputContainer {
             background-color: rgba(255,255,255,0.95) !important;
             border-radius: 12px;
-            border: none !important;
         }
         </style>
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
             <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
             <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
             <div style="color: #ccc; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
