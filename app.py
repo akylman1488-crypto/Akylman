@@ -2,7 +2,6 @@ import streamlit as st
 from brain import AkylmanBrain
 from interface import AkylmanUI
 
-# Инициализация
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "authenticated" not in st.session_state:
@@ -12,7 +11,6 @@ ui = AkylmanUI()
 brain = AkylmanBrain()
 ui.apply_styles()
 
-# --- БОКОВАЯ ПАНЕЛЬ ---
 with st.sidebar:
     st.markdown("### ⊞ УПРАВЛЕНИЕ")
     
@@ -41,7 +39,6 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# --- ОСНОВНОЙ ЧАТ ---
 ui.render_centered_logo(level)
 
 for m in st.session_state.messages:
