@@ -1,82 +1,70 @@
-import streamlit as st
+ import streamlit as st
 
 class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. БЕЛЫЙ ФОН САЙТА */
+        /* 1. БЕЛЫЙ ФОН ВСЕГО САЙТА */
         .stApp {
             background-image: url("https://abrakadabra.fun/uploads/posts/2022-02/1643881418_3-abrakadabra-fun-p-belii-fon-bez-nichego-na-ves-5.jpg");
             background-size: cover;
             background-attachment: fixed;
         }
 
-        /* 2. ВЕРХНЯЯ ПАНЕЛЬ: Чисто белая */
+        /* 2. ВЕРХНЯЯ ПОЛОСА (Зеленая зона): БЕЛАЯ */
         header[data-testid="stHeader"] {
             background-color: #ffffff !important;
         }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ: Тот самый темно-синий/черный цвет */
+        /* 3. БОКОВАЯ ПАНЕЛЬ (Синяя зона) */
         [data-testid="stSidebar"] {
-            background-color: #262730 !important;
-            min-width: 300px !important;
+            background-color: #f8f9fb !important; /* Светлый фон для панели */
+            border-right: 1px solid #ddd;
         }
 
-        /* Текст в панели: Белый и четкий */
-        [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, 
-        [data-testid="stSidebar"] label, [data-testid="stSidebar"] h3 {
-            color: #ffffff !important;
-            font-size: 16px !important;
+        /* ТЕКСТ В ПАНЕЛИ: ПРИНУДИТЕЛЬНО ЧЕРНЫЙ */
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] span, 
+        [data-testid="stSidebar"] label, 
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] .stMarkdown {
+            color: #000000 !important;
+            font-weight: 600 !important;
         }
 
-        /* Поля ввода и выбора в панели: Белый фон, черный текст */
+        /* ПОЛЯ ВВОДА: Белый фон, черная рамка */
         [data-testid="stSidebar"] input, 
         [data-testid="stSidebar"] select,
         [data-testid="stSidebar"] div[data-baseweb="select"] {
             background-color: #ffffff !important;
             color: #000000 !important;
-            border-radius: 10px !important;
-        }
-
-        /* Зеленая плашка "Доступ активен" */
-        .status-box {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724 !important;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        /* Кнопки "Выйти" и "Очистить": Белая рамка */
-        .stButton>button {
-            background-color: transparent !important;
-            color: white !important;
-            border: 1px solid #ffffff !important;
+            border: 1px solid #000000 !important;
             border-radius: 8px !important;
         }
 
-        /* Окно загрузки файлов в темной панели */
+        /* Кнопка Очистить и Выйти */
+        .stButton>button {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+        }
+
+        /* Окно загрузки файлов (Материалы) */
         [data-testid="stFileUploader"] section {
             background-color: #ffffff !important;
+            border: 1px dashed #000000 !important;
             color: #000000 !important;
-            border-radius: 10px !important;
         }
 
-        /* 4. ЧАТ: Сообщения на белом фоне */
+        /* 4. ЧАТ: Сообщения */
         [data-testid="stChatMessage"] {
-            background-color: #f0f2f6 !important;
-            border-radius: 15px !important;
-            border: 1px solid #ddd !important;
+            background-color: #ffffff !important;
+            border: 1px solid #eeeeee !important;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
         }
-        
-        [data-testid="stChatMessage"] p {
-            color: #000000 !important;
-        }
+        [data-testid="stChatMessage"] p { color: #000000 !important; }
 
-        /* Поле ввода сообщения: Черная рамка */
+        /* Поле ввода внизу */
         .stChatInputContainer {
             border: 2px solid #000000 !important;
             background: #ffffff !important;
@@ -86,9 +74,9 @@ class AkylmanUI:
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="display: flex; flex-direction: column; align-items: center; background: rgba(50, 50, 50, 0.8); padding: 25px; border-radius: 20px; margin: 10px auto; max-width: 650px;">
-            <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: white; font-size: 42px; font-weight: 900; margin: 5px 0;">AKYLMAN</div>
-            <div style="color: #ccc; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
+        <div style="display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px;">
+            <div style="color: #000000; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
+            <div style="color: #000000; font-size: 40px; font-weight: 900;">AKYLMAN</div>
+            <div style="color: #666; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
         </div>
         ''', unsafe_allow_html=True)
