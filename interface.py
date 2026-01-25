@@ -4,66 +4,84 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ОБЩИЙ ФОН */
+        /* 1. ОБЩИЙ БЕЛЫЙ ФОН САЙТА */
         .stApp {
-            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-color: #ffffff !important;
         }
 
-        /* 2. ЗЕЛЕНАЯ ОБЛАСТЬ (Верх и Низ): Делаем БЕЛЫМ */
-        header[data-testid="stHeader"], 
-        footer, 
-        .stApp > header {
+        /* 2. БОКОВАЯ ПАНЕЛЬ: Светлая с черным текстом */
+        [data-testid="stSidebar"] {
+            background-color: #f1f3f6 !important;
+            border-right: 1px solid #ddd;
+        }
+
+        /* Текст в панели — ПРИНУДИТЕЛЬНО ЧЕРНЫЙ */
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] span, 
+        [data-testid="stSidebar"] label, 
+        [data-testid="stSidebar"] h3 {
+            color: #000000 !important;
+            font-weight: 700 !important;
+        }
+
+        /* Поля выбора и ввода */
+        [data-testid="stSidebar"] select, 
+        [data-testid="stSidebar"] input,
+        [data-testid="stSidebar"] div[data-baseweb="select"] {
             background-color: #ffffff !important;
             color: #000000 !important;
+            border: 1px solid #000000 !important;
+            border-radius: 10px !important;
         }
 
-        /* 3. СИНЯЯ ОБЛАСТЬ (Кнопки Share, Github и др.): Делаем ЧЕРНЫМ */
-        [data-testid="stToolbar"], 
-        .stActionButton, 
-        button[title="View source on GitHub"],
-        [data-testid="stStatusWidget"] {
-            background-color: #000000 !important;
-            color: #ffffff !important;
-            border-radius: 5px;
-        }
-        
-        /* Исправляем цвет иконок в синей области, чтобы они были видны на черном */
-        [data-testid="stToolbar"] svg {
-            fill: #ffffff !important;
+        /* Зеленая плашка статуса */
+        .status-box {
+            background-color: #d4edda;
+            color: #155724 !important;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 10px;
         }
 
-        /* 4. СИНЯЯ ЗОНА (Боковая панель): Текст белый, как ты просил ранее */
-        [data-testid="stSidebar"] {
-            background-color: rgba(20, 30, 45, 0.9) !important;
-        }
-        
-        [data-testid="stSidebar"] * {
-            color: #ffffff !important;
-        }
-
-        /* 5. СООБЩЕНИЯ: Одинаковый фон для Красной и Желтой зоны */
+        /* 3. КРУТОЙ ФОН ДЛЯ СООБЩЕНИЙ (твоя ссылка) */
         [data-testid="stChatMessage"] {
-            background-color: rgba(60, 60, 60, 0.8) !important;
-            border-radius: 12px !important;
-            margin-bottom: 10px !important;
+            background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            margin-bottom: 15px !important;
+            padding: 20px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
         }
 
-        /* 6. ПОЛЕ ВВОДА: Черные края */
+        /* Текст внутри сообщений — белый на синем фоне */
+        [data-testid="stChatMessage"] p, 
+        [data-testid="stChatMessage"] li {
+            color: #ffffff !important;
+            font-size: 17px !important;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* 4. ПОЛЕ ВВОДА ВНИЗУ */
         .stChatInputContainer {
             border: 2px solid #000000 !important;
-            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border-radius: 15px !important;
         }
         </style>
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
-        st.markdown(f"""
-        <div style="display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.7); padding: 20px; border-radius: 20px; margin: 10px auto; max-width: 600px;">
-            <div style="color: #00ffcc; font-size: 20px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: white; font-size: 40px; font-weight: 900;">AKYLMAN</div>
-            <div style="color: #aaa; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
+        st.markdown(f'''
+        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+            <div style="background-image: url('https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200'); 
+                        background-size: cover; padding: 40px; border-radius: 30px; text-align: center; border: 2px solid #000; width: 100%; max-width: 700px;">
+                <div style="color: #00ffcc; font-size: 20px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
+                <div style="color: white; font-size: 55px; font-weight: 900; margin: 10px 0; text-shadow: 2px 2px 5px #000;">AKYLMAN</div>
+                <div style="color: #eee; letter-spacing: 7px; font-size: 12px;">PRESIDENTIAL SCHOOL</div>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
