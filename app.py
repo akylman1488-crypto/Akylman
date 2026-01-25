@@ -20,23 +20,25 @@ with st.sidebar:
             st.session_state.auth = True
             st.rerun()
     else:
-        st.markdown('<div class="status-box">Доступ активен ✅</div>', unsafe_allow_html=True)
+        st.success("Доступ активен ✅")
         if st.button("Выйти"):
             st.session_state.auth = False
             st.rerun()
 
     levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
     active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    
     ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
     level = levels[ver]
 
+    # ОБНОВЛЕННЫЙ СПИСОК УРОКОВ
     subject = st.selectbox("Выбери урок:", [
         "Математика", "ICT", "Физика", "История", "English", "Биология"
     ])
 
     st.markdown("---")
     st.subheader("Материалы")
-    st.file_uploader("Drag and drop file here", type=["pdf", "png", "jpg"], accept_multiple_files=True)
+    st.file_uploader("Загрузить файлы", type=["pdf", "png", "jpg"], accept_multiple_files=True)
     
     if st.button("🗑 Очистить чат"):
         st.session_state.messages = []
@@ -54,14 +56,14 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         st.markdown(prompt)
     
     with st.chat_message("assistant"):
-        full_res = ""
+        res = ""
         box = st.empty()
         try:
             for chunk in brain.generate_response_stream(prompt, level, subject):
-                full_res += chunk
-                box.markdown(full_res + "▌")
-            st.session_state.messages.append({"role": "assistant", "content": full_res})
-            box.markdown(full_res)
+                res += chunk
+                box.markdown(res + "▌")
+            st.session_state.messages.append({"role": "assistant", "content": res})
+            box.markdown(res)
         except Exception as e:
             msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
             box.markdown(msg)
