@@ -4,6 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
+        /* 1. ФОН САЙТА */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -11,30 +12,38 @@ class AkylmanUI:
             background-position: center;
         }
 
+        /* 2. СКРЫВАЕМ ЛИШНЕЕ, НО ОСТАВЛЯЕМ КНОПКУ ПАНЕЛИ */
+        /* Скрываем только элементы управления в хедере, а не весь хедер */
+        header [data-testid="stHeaderActionElements"] {
+            display: none;
+        }
+        
+        /* Убираем футер (красная зона) */
         footer {
             visibility: hidden;
             height: 0px;
         }
-        
-        header {
-            visibility: hidden;
-        }
 
+        /* Убираем пустые отступы сверху и снизу */
         .block-container {
+            padding-top: 2rem;
             padding-bottom: 0px;
         }
 
+        /* 3. БОКОВАЯ ПАНЕЛЬ: СВЕТЛО-СЕРАЯ */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
             border-right: 1px solid #ddd;
         }
         
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
-        [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+        [data-testid="stSidebar"] h3, 
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] label {
             color: #000000 !important;
             font-weight: 700 !important;
         }
 
+        /* 4. ПОЛЯ ВВОДА (БЕЗ ЛИНИЙ) */
         [data-testid="stSidebar"] div[data-baseweb="input"],
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
@@ -48,11 +57,8 @@ class AkylmanUI:
             color: #000000 !important; 
             font-weight: 500 !important;
         }
-        
-        [data-testid="stSidebar"] svg {
-            fill: #000000 !important;
-        }
 
+        /* 5. ЧАТ (БЕЛЫЙ ТЕКСТ) */
         [data-testid="stChatMessage"] {
             background-color: rgba(0, 0, 0, 0.75) !important;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -63,18 +69,17 @@ class AkylmanUI:
             color: #ffffff !important;
         }
 
+        /* Кнопки */
         .stButton>button {
             background-color: #ffffff !important;
             color: #000000 !important;
             border: none !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        /* Инпут внизу */
         .stChatInputContainer {
             background-color: rgba(255,255,255,0.95) !important;
             border-radius: 12px;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
         }
         </style>
         """, unsafe_allow_html=True)
