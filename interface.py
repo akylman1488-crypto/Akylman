@@ -1,4 +1,4 @@
- import streamlit as st
+import streamlit as st
 
 class AkylmanUI:
     def apply_styles(self):
@@ -11,56 +11,47 @@ class AkylmanUI:
             background-attachment: fixed;
         }
 
-        /* 2. ВЕРХНЯЯ ПОЛОСА (Зеленая зона): БЕЛАЯ */
+        /* 2. ВЕРХНЯЯ ПОЛОСА: Белая */
         header[data-testid="stHeader"] {
             background-color: #ffffff !important;
         }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ (Синяя зона) */
+        /* 3. БОКОВАЯ ПАНЕЛЬ (Синяя зона на чертеже) */
         [data-testid="stSidebar"] {
-            background-color: #f8f9fb !important; /* Светлый фон для панели */
-            border-right: 1px solid #ddd;
+            background-color: #f0f2f6 !important; /* Светло-серый фон */
+            border-right: 2px solid #000000;
         }
 
-        /* ТЕКСТ В ПАНЕЛИ: ПРИНУДИТЕЛЬНО ЧЕРНЫЙ */
+        /* ТЕКСТ В ПАНЕЛИ: СДЕЛАЛ ЧЕРНЫМ */
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] span, 
         [data-testid="stSidebar"] label, 
-        [data-testid="stSidebar"] h3,
-        [data-testid="stSidebar"] .stMarkdown {
+        [data-testid="stSidebar"] h3 {
             color: #000000 !important;
-            font-weight: 600 !important;
+            font-weight: bold !important;
         }
 
-        /* ПОЛЯ ВВОДА: Белый фон, черная рамка */
+        /* ПОЛЯ ВВОДА В ПАНЕЛИ */
         [data-testid="stSidebar"] input, 
         [data-testid="stSidebar"] select,
         [data-testid="stSidebar"] div[data-baseweb="select"] {
             background-color: #ffffff !important;
             color: #000000 !important;
             border: 1px solid #000000 !important;
-            border-radius: 8px !important;
         }
 
-        /* Кнопка Очистить и Выйти */
-        .stButton>button {
+        /* Кнопки Очистить/Выйти */
+        [data-testid="stSidebar"] button {
             background-color: #000000 !important;
             color: #ffffff !important;
             border-radius: 8px !important;
         }
 
-        /* Окно загрузки файлов (Материалы) */
-        [data-testid="stFileUploader"] section {
-            background-color: #ffffff !important;
-            border: 1px dashed #000000 !important;
-            color: #000000 !important;
-        }
-
-        /* 4. ЧАТ: Сообщения */
+        /* 4. ОСНОВНОЙ ЧАТ */
         [data-testid="stChatMessage"] {
             background-color: #ffffff !important;
-            border: 1px solid #eeeeee !important;
-            box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #ddd !important;
+            border-radius: 15px !important;
         }
         [data-testid="stChatMessage"] p { color: #000000 !important; }
 
@@ -74,9 +65,9 @@ class AkylmanUI:
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px;">
-            <div style="color: #000000; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: #000000; font-size: 40px; font-weight: 900;">AKYLMAN</div>
+        <div style="text-align: center; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px; border: 1px solid #000; margin-bottom: 20px;">
+            <div style="color: #000; font-size: 18px;">🧠 AKYLMAN AI ({level_name})</div>
+            <div style="color: #000; font-size: 40px; font-weight: 900;">AKYLMAN</div>
             <div style="color: #666; letter-spacing: 5px; font-size: 10px;">PRESIDENTIAL SCHOOL</div>
         </div>
         ''', unsafe_allow_html=True)
