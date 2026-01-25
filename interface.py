@@ -4,12 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ГЛОБАЛЬНАЯ БЛОКИРОВКА ЦВЕТОВ */
-        :root {
-            --primary-color: #00ffcc;
-        }
-
-        /* Общий фон */
+        /* 1. ОБЩИЙ ФОН */
         .stApp {
             background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8FHqLyGvth07EBwzDTKirjRPMJbVOxPZbBZFMGNu3EG8NY_dGK3llTrzE&s=10");
             background-size: cover;
@@ -25,11 +20,10 @@ class AkylmanUI:
             color: #000000 !important;
         }
 
-        /* 3. СИНЯЯ ОБЛАСТЬ (Системные кнопки): ВСЕГДА ЧЕРНЫЙ */
+        /* 3. СИНЯЯ ОБЛАСТЬ (Системные кнопки справа вверху): ВСЕГДА ЧЕРНЫЙ */
         [data-testid="stToolbar"], 
         [data-testid="stStatusWidget"],
-        .stActionButton,
-        button[title="View source on GitHub"] {
+        .stActionButton {
             background-color: #000000 !important;
             color: #ffffff !important;
             border-radius: 8px !important;
@@ -39,27 +33,34 @@ class AkylmanUI:
             fill: #ffffff !important;
         }
 
-        /* 4. БОКОВАЯ ПАНЕЛЬ (Синяя зона на схеме): ТЕКСТ ВСЕГДА БЕЛЫЙ */
+        /* 4. БОКОВАЯ ПАНЕЛЬ (Синяя зона): ТЕКСТ ТЕПЕРЬ ВСЕГДА ЧЕРНЫЙ */
         [data-testid="stSidebar"] {
-            background-color: rgba(20, 30, 45, 0.95) !important;
+            background-color: rgba(240, 242, 246, 0.95) !important; /* Светлый фон панели */
+            border-right: 1px solid #ddd;
         }
         
-        /* Заставляем все надписи в панели быть белыми */
-        [data-testid="stSidebar"] * {
-            color: #ffffff !important;
+        /* Принудительный ЧЕРНЫЙ цвет для всех надписей в панели */
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] span, 
+        [data-testid="stSidebar"] label, 
+        [data-testid="stSidebar"] div,
+        .sidebar-title {
+            color: #000000 !important; 
+            font-weight: 600 !important;
         }
         
-        /* Исправляем поля ввода в боковой панели (чтобы текст внутри был черным) */
+        /* Поля ввода в боковой панели (белый фон, черный текст) */
         [data-testid="stSidebar"] input, 
         [data-testid="stSidebar"] select,
         [data-testid="stSidebar"] div[role="listbox"] {
             color: #000000 !important;
             background-color: #ffffff !important;
+            border: 1px solid #000 !important;
         }
 
-        /* 5. СООБЩЕНИЯ (Красная и Желтая зоны): ВСЕГДА СЕРЫЙ ФОН */
+        /* 5. СООБЩЕНИЯ ЧАТА (Красная и Желтая зоны): ЕДИНЫЙ СЕРЫЙ ФОН */
         [data-testid="stChatMessage"] {
-            background-color: rgba(50, 50, 50, 0.9) !important;
+            background-color: rgba(60, 60, 60, 0.85) !important;
             border-radius: 15px !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
@@ -68,7 +69,7 @@ class AkylmanUI:
             color: #ffffff !important;
         }
 
-        /* 6. ПОЛЕ ВВОДА: ЧЕРНЫЕ КРАЯ */
+        /* 6. ПОЛЕ ВВОДА ВНИЗУ: ЧЕРНЫЕ КРАЯ */
         .stChatInputContainer {
             border: 2px solid #000000 !important;
             background: #ffffff !important;
@@ -84,7 +85,4 @@ class AkylmanUI:
         st.markdown(f"""
         <div style="display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.7); padding: 25px; border-radius: 20px; margin: 10px auto; max-width: 650px; text-align: center;">
             <div style="color: #00ffcc; font-size: 22px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: white; font-size: 45px; font-weight: 900; margin: 5px 0;">AKYLMAN</div>
-            <div style="color: #aaa; letter-spacing: 5px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
-        </div>
-        """, unsafe_allow_html=True)
+            <div style="color: white; font-size: 45px; font-weight: 900;
