@@ -12,8 +12,7 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. КНОПКА ПАНЕЛИ (Стрелочка >>) */
-        /* Делаем хедер прозрачным, чтобы кнопка была видна на фоне */
+        /* 2. КНОПКА ПАНЕЛИ (>> ) */
         header[data-testid="stHeader"] {
             background-color: rgba(0,0,0,0) !important;
         }
@@ -22,23 +21,25 @@ class AkylmanUI:
         }
         footer { visibility: hidden; }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ (Светло-серая) */
+        /* 3. БОКОВАЯ ПАНЕЛЬ */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
         }
         
-        /* ВЕСЬ ТЕКСТ В ПАНЕЛИ — ЧЁРНЫЙ */
-        [data-testid="stSidebar"] * {
+        /* Основные заголовки в панели — Чёрные */
+        [data-testid="stSidebar"] h3, 
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] label {
             color: #000000 !important;
+            font-weight: 700 !important;
         }
 
-        /* 4. ПОЛЕ ПАРОЛЯ (Чёрный фон, Белый текст) */
+        /* 4. ПАРОЛЬ (Чёрный фон, Белый текст) */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
             background-color: #1e1e1e !important;
             border: none !important;
             border-radius: 10px !important;
         }
-        /* Внутри пароля текст должен остаться белым для контраста */
         [data-testid="stSidebar"] div[data-baseweb="input"] input {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
@@ -50,21 +51,34 @@ class AkylmanUI:
             border: none !important;
             border-radius: 10px !important;
         }
-        
-        /* Текст внутри выпадающих списков */
-        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
-        [data-testid="stSidebar"] div[data-baseweb="select"] span,
-        [data-testid="stSidebar"] div[data-baseweb="select"] p {
+        [data-testid="stSidebar"] div[data-baseweb="select"] span {
             color: #000000 !important;
-            font-weight: 700 !important;
-        }
-        
-        /* Иконки и стрелочки — Чёрные */
-        [data-testid="stSidebar"] svg {
-            fill: #000000 !important;
         }
 
-        /* 6. ЧАТ (Белый текст на тёмном фоне) */
+        /* 6. КРАСНАЯ ЗОНА (ЗАГРУЗКА И КНОПКА): ТЕКСТ БЕЛЫЙ */
+        /* Зона загрузки файлов */
+        [data-testid="stFileUploadDropzone"] {
+            background-color: #1e1e1e !important;
+            border: 1px dashed rgba(255,255,255,0.2) !important;
+        }
+        [data-testid="stFileUploadDropzone"] p, 
+        [data-testid="stFileUploadDropzone"] span,
+        [data-testid="stFileUploadDropzone"] small {
+            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
+        }
+        
+        /* Кнопка "Очистить чат" */
+        [data-testid="stSidebar"] .stButton button {
+            background-color: #1e1e1e !important;
+            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
+            border: none !important;
+            width: 100%;
+        }
+        [data-testid="stSidebar"] .stButton button p {
+            color: #ffffff !important;
+        }
+
+        /* 7. ЧАТ */
         [data-testid="stChatMessage"] {
             background-color: rgba(0, 0, 0, 0.75) !important;
             border-radius: 15px;
@@ -73,13 +87,9 @@ class AkylmanUI:
             color: #ffffff !important;
         }
 
-        /* Поле ввода внизу */
         .stChatInputContainer {
             background-color: rgba(255,255,255,0.95) !important;
             border-radius: 12px;
-        }
-        .stChatInputContainer textarea {
-            color: #000000 !important;
         }
         </style>
         """, unsafe_allow_html=True)
