@@ -4,84 +4,88 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ОБЩИЙ БЕЛЫЙ ФОН САЙТА */
+        /* 1. ФОН САЙТА (Твоя ссылка) */
         .stApp {
-            background-color: #ffffff !important;
+            background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
 
-        /* 2. БОКОВАЯ ПАНЕЛЬ: Светлая с черным текстом */
+        /* 2. ЗЕЛЕНАЯ ЗОНА (Боковая панель): СВЕТЛО-СЕРЫЙ ФОН */
         [data-testid="stSidebar"] {
-            background-color: #f1f3f6 !important;
-            border-right: 1px solid #ddd;
+            background-color: #e0e2e6 !important; /* Светло-серый */
+            border-right: 1px solid #ccc;
         }
 
-        /* Текст в панели — ПРИНУДИТЕЛЬНО ЧЕРНЫЙ */
+        /* Текст в боковой панели (Заголовки): Черный */
+        [data-testid="stSidebar"] h1, 
+        [data-testid="stSidebar"] h2, 
+        [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] span, 
-        [data-testid="stSidebar"] label, 
-        [data-testid="stSidebar"] h3 {
+        [data-testid="stSidebar"] label {
             color: #000000 !important;
-            font-weight: 700 !important;
+            font-weight: 600 !important;
         }
 
-        /* Поля выбора и ввода */
-        [data-testid="stSidebar"] select, 
-        [data-testid="stSidebar"] input,
-        [data-testid="stSidebar"] div[data-baseweb="select"] {
+        /* 3. КРАСНАЯ ЗОНА (Поля ввода): ТЕКСТ ЧЕРНЫЙ */
+        [data-testid="stSidebar"] input, 
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
-            color: #000000 !important;
+            color: #000000 !important; /* Текст черный */
             border: 1px solid #000000 !important;
-            border-radius: 10px !important;
+            border-radius: 8px !important;
+        }
+        /* Цвет текста внутри выпадающего списка */
+        [data-testid="stSidebar"] div[data-baseweb="select"] span {
+            color: #000000 !important;
         }
 
-        /* Зеленая плашка статуса */
+        /* 4. СИНЯЯ ЗОНА (Сообщения): ТЕКСТ БЕЛЫЙ */
+        [data-testid="stChatMessage"] {
+            background-color: rgba(0, 0, 0, 0.7) !important; /* Темная подложка */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+        
+        [data-testid="stChatMessage"] p, 
+        [data-testid="stChatMessage"] li, 
+        [data-testid="stChatMessage"] div {
+            color: #ffffff !important; /* Текст белый */
+        }
+
+        /* Зеленая плашка "Доступ активен" */
         .status-box {
             background-color: #d4edda;
             color: #155724 !important;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
             border: 1px solid #c3e6cb;
             margin-bottom: 10px;
+            font-weight: bold;
         }
 
-        /* 3. КРУТОЙ ФОН ДЛЯ СООБЩЕНИЙ (твоя ссылка) */
-        [data-testid="stChatMessage"] {
-            background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200") !important;
-            background-size: cover !important;
-            background-position: center !important;
-            border-radius: 20px !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
-            margin-bottom: 15px !important;
-            padding: 20px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-        }
-
-        /* Текст внутри сообщений — белый на синем фоне */
-        [data-testid="stChatMessage"] p, 
-        [data-testid="stChatMessage"] li {
-            color: #ffffff !important;
-            font-size: 17px !important;
-            text-shadow: 1px 1px 2px black;
-        }
-
-        /* 4. ПОЛЕ ВВОДА ВНИЗУ */
-        .stChatInputContainer {
-            border: 2px solid #000000 !important;
+        /* Кнопки в панели */
+        .stButton>button {
             background-color: #ffffff !important;
-            border-radius: 15px !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+        }
+
+        /* Поле ввода сообщения внизу */
+        .stChatInputContainer {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 10px;
         }
         </style>
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
-            <div style="background-image: url('https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200'); 
-                        background-size: cover; padding: 40px; border-radius: 30px; text-align: center; border: 2px solid #000; width: 100%; max-width: 700px;">
-                <div style="color: #00ffcc; font-size: 20px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-                <div style="color: white; font-size: 55px; font-weight: 900; margin: 10px 0; text-shadow: 2px 2px 5px #000;">AKYLMAN</div>
-                <div style="color: #eee; letter-spacing: 7px; font-size: 12px;">PRESIDENTIAL SCHOOL</div>
-            </div>
+        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
+            <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
+            <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
+            <div style="color: #ddd; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
         </div>
         ''', unsafe_allow_html=True)
