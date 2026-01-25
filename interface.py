@@ -4,29 +4,21 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ОБЩИЙ ФОН */
+        /* 1. ФОН И КНОПКА ПАНЕЛИ */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
         }
-
-        /* 2. КНОПКА ПАНЕЛИ (>> ) */
-        header[data-testid="stHeader"] {
-            background-color: rgba(0,0,0,0) !important;
-        }
-        header [data-testid="stHeaderActionElements"] {
-            display: none !important;
-        }
+        header[data-testid="stHeader"] { background-color: rgba(0,0,0,0) !important; }
+        header [data-testid="stHeaderActionElements"] { display: none !important; }
         footer { visibility: hidden; }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ */
-        [data-testid="stSidebar"] {
-            background-color: #f0f2f6 !important;
-        }
+        /* 2. БОКОВАЯ ПАНЕЛЬ */
+        [data-testid="stSidebar"] { background-color: #f0f2f6 !important; }
         
-        /* Основные заголовки в панели — Чёрные */
+        /* Заголовки — Чёрные */
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
@@ -34,7 +26,7 @@ class AkylmanUI:
             font-weight: 700 !important;
         }
 
-        /* 4. ПАРОЛЬ (Чёрный фон, Белый текст) */
+        /* 3. ПАРОЛЬ — ТЕКСТ БЕЛЫЙ */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
             background-color: #1e1e1e !important;
             border: none !important;
@@ -45,52 +37,54 @@ class AkylmanUI:
             -webkit-text-fill-color: #ffffff !important;
         }
 
-        /* 5. ВЫБОР МОДЕЛИ И УРОКА (Белый фон, Чёрный текст) */
+        /* 4. ВЫБОР МОДЕЛИ И УРОКА — ТЕКСТ ТОЛЬКО ЧЁРНЫЙ */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
             border: none !important;
             border-radius: 10px !important;
         }
-        [data-testid="stSidebar"] div[data-baseweb="select"] span {
+        /* Принудительно черный цвет для текста в селектах */
+        [data-testid="stSidebar"] div[data-baseweb="select"] span,
+        [data-testid="stSidebar"] div[data-baseweb="select"] p,
+        [data-testid="stSidebar"] div[data-baseweb="select"] div {
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
-        /* 6. КРАСНАЯ ЗОНА (ЗАГРУЗКА И КНОПКА): ТЕКСТ БЕЛЫЙ */
-        /* Зона загрузки файлов */
+        /* 5. КРАСНАЯ ЗОНА (ЗАГРУЗКА И ОЧИСТКА) — ТЕКСТ БЕЛЫЙ */
         [data-testid="stFileUploadDropzone"] {
             background-color: #1e1e1e !important;
-            border: 1px dashed rgba(255,255,255,0.2) !important;
+            border: none !important;
+            border-radius: 10px !important;
         }
         [data-testid="stFileUploadDropzone"] p, 
         [data-testid="stFileUploadDropzone"] span,
-        [data-testid="stFileUploadDropzone"] small {
-            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
+        [data-testid="stFileUploadDropzone"] div {
+            color: #ffffff !important; /* ТУТ БЕЛЫЙ */
+            -webkit-text-fill-color: #ffffff !important;
         }
         
-        /* Кнопка "Очистить чат" */
         [data-testid="stSidebar"] .stButton button {
             background-color: #1e1e1e !important;
-            color: #ffffff !important; /* ТЕКСТ БЕЛЫЙ */
             border: none !important;
             width: 100%;
         }
-        [data-testid="stSidebar"] .stButton button p {
-            color: #ffffff !important;
+        /* Текст внутри кнопки очистки */
+        [data-testid="stSidebar"] .stButton button p,
+        [data-testid="stSidebar"] .stButton button div {
+            color: #ffffff !important; /* ТУТ БЕЛЫЙ */
+            -webkit-text-fill-color: #ffffff !important;
         }
 
-        /* 7. ЧАТ */
-        [data-testid="stChatMessage"] {
-            background-color: rgba(0, 0, 0, 0.75) !important;
-            border-radius: 15px;
-        }
-        [data-testid="stChatMessage"] p {
-            color: #ffffff !important;
-        }
-
-        .stChatInputContainer {
-            background-color: rgba(255,255,255,0.95) !important;
-            border-radius: 12px;
-        }
+        /* Чат */
+        [data-testid="stChatMessage"] { background-color: rgba(0, 0, 0, 0.75) !important; border-radius: 15px; }
+        [data-testid="stChatMessage"] p { color: #ffffff !important; }
+        .stChatInputContainer { background-color: rgba(255,255,255,0.95) !important; border-radius: 12px; }
+        
+        /* Иконки — Чёрные там, где белый фон */
+        [data-testid="stSidebar"] svg { fill: #000000 !important; }
+        /* Иконки внутри темных кнопок — Белые */
+        [data-testid="stSidebar"] .stButton button svg { fill: #ffffff !important; }
         </style>
         """, unsafe_allow_html=True)
 
