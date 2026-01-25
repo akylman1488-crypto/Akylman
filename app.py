@@ -13,7 +13,7 @@ ui.apply_styles()
 
 with st.sidebar:
     st.markdown("### ⊞ УПРАВЛЕНИЕ")
-    
+
     if not st.session_state.auth:
         pw = st.text_input("Пароль для Pro:", type="password")
         if pw == "AKYLMAN-PRO":
@@ -28,8 +28,17 @@ with st.sidebar:
     levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
     active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
     
-    level = levels[st.selectbox("Версия АКЫЛМАНА:", active_lvls)]
-    subject = st.selectbox("Выбери урок:", ["Математика", "ICT", "Физика", "История", "English", "Биология"])
+    ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
+    level = levels[ver]
+
+    subject = st.selectbox("Выбери урок:", [
+        "Математика", 
+        "English", 
+        "ICT", 
+        "Физика", 
+        "Биология", 
+        "История"
+    ])
 
     st.markdown("---")
     st.subheader("Материалы")
@@ -60,4 +69,5 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
             st.session_state.messages.append({"role": "assistant", "content": res})
             box.markdown(res)
         except Exception as e:
-            box.markdown("Лимит исчерпан. Скоро буду! 😊" if "429" in str(e) else f"Ошибка: {e}")
+            msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
+            box.markdown(msg)
