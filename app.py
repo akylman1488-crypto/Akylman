@@ -26,12 +26,13 @@ with st.sidebar:
             st.rerun()
 
     levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
-    active_levels = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
-    
-    ver = st.selectbox("Версия АКЫЛМАНА:", active_levels)
+    active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
     level = levels[ver]
 
-    subject = st.selectbox("Выбери урок:", ["Математика", "ICT", "Физика", "История", "English", "Биология"])
+    subject = st.selectbox("Выбери урок:", [
+        "Математика", "ICT", "Физика", "История", "English", "Биология"
+    ])
 
     st.markdown("---")
     st.subheader("Материалы")
@@ -54,13 +55,13 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
     
     with st.chat_message("assistant"):
         full_res = ""
-        placeholder = st.empty()
+        box = st.empty()
         try:
             for chunk in brain.generate_response_stream(prompt, level, subject):
                 full_res += chunk
-                placeholder.markdown(full_res + "▌")
+                box.markdown(full_res + "▌")
             st.session_state.messages.append({"role": "assistant", "content": full_res})
-            placeholder.markdown(full_res)
+            box.markdown(full_res)
         except Exception as e:
-            msg = "Лимит исчерпан. Пожалуйста, подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
-            placeholder.markdown(msg)
+            msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
+            box.markdown(msg)
