@@ -20,7 +20,7 @@ with st.sidebar:
             st.session_state.auth = True
             st.rerun()
     else:
-        st.success("Доступ активен ✅")
+        st.markdown('<p style="color:green;">Доступ активен ✅</p>', unsafe_allow_html=True)
         if st.button("Выйти"):
             st.session_state.auth = False
             st.rerun()
@@ -31,10 +31,8 @@ with st.sidebar:
     ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
     level = levels[ver]
 
-    # ОБНОВЛЕННЫЙ СПИСОК УРОКОВ
-    subject = st.selectbox("Выбери урок:", [
-        "Математика", "ICT", "Физика", "История", "English", "Биология"
-    ])
+    # ТВОЙ СПИСОК УРОКОВ
+    subject = st.selectbox("Выбери урок:", ["Математика", "ICT", "Физика", "История", "English", "Биология"])
 
     st.markdown("---")
     st.subheader("Материалы")
@@ -65,5 +63,4 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
             st.session_state.messages.append({"role": "assistant", "content": res})
             box.markdown(res)
         except Exception as e:
-            msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
-            box.markdown(msg)
+            box.markdown(f"Ошибка: {e}")
