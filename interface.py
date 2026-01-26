@@ -12,21 +12,27 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. ВЕРХНЯЯ ПАНЕЛЬ И КНОПКА РАЗВЕРТЫВАНИЯ */
+        /* 2. КНОПКА БОКОВОЙ ПАНЕЛИ — БЕЛАЯ */
         header[data-testid="stHeader"] {
-            background-color: rgba(0,0,0,0) !important;
+            background-color: transparent !important;
+            color: #ffffff !important;
         }
+        /* Делаем иконку стрелочки белой */
+        header[data-testid="stHeader"] svg {
+            fill: #ffffff !important;
+        }
+        /* Скрываем меню справа */
         header [data-testid="stHeaderActionElements"] {
             display: none !important;
         }
         footer { visibility: hidden; }
 
-        /* 3. САЙДБАР */
+        /* 3. БОКОВАЯ ПАНЕЛЬ */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
         }
-
-        /* Заголовки разделов (Управление, Материалы) — ЧЁРНЫЕ */
+        
+        /* Заголовки черные */
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
@@ -34,21 +40,22 @@ class AkylmanUI:
             font-weight: 700 !important;
         }
 
-        /* 4. ПАРОЛЬ — ТЕКСТ И ГЛАЗИК БЕЛЫЕ */
+        /* 4. ПАРОЛЬ — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ И ГЛАЗИК */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
-            background-color: #1e1e1e !important;
+            background-color: #ffffff !important; /* Фон белый */
             border: none !important;
             border-radius: 10px !important;
         }
         [data-testid="stSidebar"] div[data-baseweb="input"] input {
-            color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
+            color: #000000 !important; /* Текст черный */
+            -webkit-text-fill-color: #000000 !important;
         }
+        /* Иконка глаза — черная */
         [data-testid="stSidebar"] div[data-baseweb="input"] svg {
-            fill: #ffffff !important;
+            fill: #000000 !important;
         }
 
-        /* 5. ВЫБОР МОДЕЛИ/УРОКА — ТЕКСТ СТРОГО ЧЁРНЫЙ */
+        /* 5. ВЫБОР МОДЕЛИ/УРОКА — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
             border: none !important;
@@ -64,8 +71,7 @@ class AkylmanUI:
             fill: #000000 !important;
         }
 
-        /* 6. ЗОНА ЗАГРУЗКИ И ОЧИСТКИ — ТЕКСТ БЕЛЫЙ */
-        /* Блок загрузки */
+        /* 6. ЗАГРУЗКА И КНОПКА ОЧИСТКИ — ТЁМНЫЙ ФОН, БЕЛЫЙ ТЕКСТ */
         [data-testid="stFileUploadDropzone"] {
             background-color: #1e1e1e !important;
             border: none !important;
@@ -77,7 +83,6 @@ class AkylmanUI:
             -webkit-text-fill-color: #ffffff !important;
         }
 
-        /* Кнопка Очистить чат */
         [data-testid="stSidebar"] .stButton button {
             background-color: #1e1e1e !important;
             border: none !important;
