@@ -74,3 +74,14 @@ if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
         except Exception as e:
             msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
             box.markdown(msg)
+
+st.set_page_config(
+    page_title="AKYLMAN AI — Умный помощник Presidential School",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://твой-сайт.com',
+        'About': "# AKYLMAN AI. Лучший помощник для учеников!"
+    }
+)
