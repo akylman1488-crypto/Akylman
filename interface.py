@@ -4,7 +4,7 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ОБЩИЙ ФОН */
+        /* 1. ФОН */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
@@ -12,27 +12,24 @@ class AkylmanUI:
             background-position: center;
         }
 
-        /* 2. КНОПКА БОКОВОЙ ПАНЕЛИ — БЕЛАЯ */
-        header[data-testid="stHeader"] {
-            background-color: transparent !important;
+        /* 2. КНОПКА РАЗВЕРТЫВАНИЯ (СТРЕЛКА) — БЕЛАЯ */
+        [data-testid="stSidebarCollapsedControl"] svg {
+            fill: #ffffff !important;
             color: #ffffff !important;
         }
-        /* Делаем иконку стрелочки белой */
-        header[data-testid="stHeader"] svg {
-            fill: #ffffff !important;
+        
+        header[data-testid="stHeader"] {
+            background-color: transparent !important;
         }
-        /* Скрываем меню справа */
         header [data-testid="stHeaderActionElements"] {
             display: none !important;
         }
         footer { visibility: hidden; }
 
-        /* 3. БОКОВАЯ ПАНЕЛЬ */
+        /* 3. САЙДБАР */
         [data-testid="stSidebar"] {
             background-color: #f0f2f6 !important;
         }
-        
-        /* Заголовки черные */
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] label {
@@ -42,28 +39,35 @@ class AkylmanUI:
 
         /* 4. ПАРОЛЬ — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ И ГЛАЗИК */
         [data-testid="stSidebar"] div[data-baseweb="input"] {
-            background-color: #ffffff !important; /* Фон белый */
-            border: none !important;
+            background-color: #ffffff !important;
+            border: 1px solid #dcdcdc !important;
             border-radius: 10px !important;
         }
         [data-testid="stSidebar"] div[data-baseweb="input"] input {
-            color: #000000 !important; /* Текст черный */
+            color: #000000 !important;
             -webkit-text-fill-color: #000000 !important;
         }
-        /* Иконка глаза — черная */
         [data-testid="stSidebar"] div[data-baseweb="input"] svg {
             fill: #000000 !important;
         }
 
-        /* 5. ВЫБОР МОДЕЛИ/УРОКА — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ */
+        /* 5. СООБЩЕНИЯ ОБ ОШИБКАХ (Неверный пароль) */
+        [data-testid="stNotification"] {
+            background-color: #ff4b4b !important;
+            color: #ffffff !important;
+            border-radius: 10px;
+        }
+        [data-testid="stNotification"] p {
+            color: #ffffff !important;
+        }
+
+        /* 6. ВЫБОР МОДЕЛИ/УРОКА — ЧЁРНЫЙ ТЕКСТ */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
-            border: none !important;
             border-radius: 10px !important;
         }
         [data-testid="stSidebar"] div[data-baseweb="select"] span,
-        [data-testid="stSidebar"] div[data-baseweb="select"] p,
-        [data-testid="stSidebar"] div[data-baseweb="select"] div {
+        [data-testid="stSidebar"] div[data-baseweb="select"] p {
             color: #000000 !important;
             -webkit-text-fill-color: #000000 !important;
         }
@@ -71,32 +75,26 @@ class AkylmanUI:
             fill: #000000 !important;
         }
 
-        /* 6. ЗАГРУЗКА И КНОПКА ОЧИСТКИ — ТЁМНЫЙ ФОН, БЕЛЫЙ ТЕКСТ */
+        /* 7. ЗАГРУЗКА И ОЧИСТКА — БЕЛЫЙ ТЕКСТ */
         [data-testid="stFileUploadDropzone"] {
             background-color: #1e1e1e !important;
-            border: none !important;
             border-radius: 10px !important;
         }
         [data-testid="stFileUploadDropzone"] p, 
         [data-testid="stFileUploadDropzone"] span {
             color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
         }
-
+        
         [data-testid="stSidebar"] .stButton button {
             background-color: #1e1e1e !important;
-            border: none !important;
+            color: #ffffff !important;
             width: 100%;
         }
         [data-testid="stSidebar"] .stButton button p {
             color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important;
-        }
-        [data-testid="stSidebar"] .stButton button svg {
-            fill: #ffffff !important;
         }
 
-        /* 7. ЧАТ */
+        /* 8. ЧАТ */
         [data-testid="stChatMessage"] {
             background-color: rgba(0, 0, 0, 0.75) !important;
             border-radius: 15px;
