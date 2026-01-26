@@ -14,8 +14,8 @@ class AkylmanUI:
 
         /* 2. КНОПКА РАЗВЕРТЫВАНИЯ (СТРЕЛКА) — БЕЛАЯ */
         [data-testid="stSidebarCollapsedControl"] svg {
-            fill: #ffffff !important;
-            color: #ffffff !important;
+            fill: white !important;
+            color: white !important;
         }
         
         header[data-testid="stHeader"] {
