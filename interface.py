@@ -4,116 +4,68 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН */
+        /* Общий фон и Хедер */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
             background-attachment: fixed;
-            background-position: center;
-        }
-
-        /* 2. КНОПКА РАЗВЕРТЫВАНИЯ (СТРЕЛКА) — БЕЛАЯ */
-        [data-testid="stSidebarCollapsedControl"] svg {
-            fill: white !important;
-            color: white !important;
         }
         
-        header[data-testid="stHeader"] {
-            background-color: transparent !important;
-        }
-        header [data-testid="stHeaderActionElements"] {
-            display: none !important;
-        }
-        footer { visibility: hidden; }
+        /* Кнопка боковой панели БЕЛАЯ */
+        [data-testid="stSidebarCollapsedControl"] svg { fill: white !important; }
 
-        /* 3. САЙДБАР */
-        [data-testid="stSidebar"] {
-            background-color: #f0f2f6 !important;
-        }
-        [data-testid="stSidebar"] h3, 
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] label {
-            color: #000000 !important;
-            font-weight: 700 !important;
-        }
-
-        /* 4. ПАРОЛЬ — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ И ГЛАЗИК */
-        [data-testid="stSidebar"] div[data-baseweb="input"] {
-            background-color: #ffffff !important;
-            border: 1px solid #dcdcdc !important;
-            border-radius: 10px !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="input"] input {
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="input"] svg {
-            fill: #000000 !important;
+        /* СТИЛЬ ОКНА ПАРОЛЯ (В центре) */
+        .password-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            width: 350px;
+            text-align: center;
         }
 
-        /* 5. СООБЩЕНИЯ ОБ ОШИБКАХ (Неверный пароль) */
-        [data-testid="stNotification"] {
-            background-color: #ff4b4b !important;
-            color: #ffffff !important;
-            border-radius: 10px;
-        }
-        [data-testid="stNotification"] p {
-            color: #ffffff !important;
-        }
-
-        /* 6. ВЫБОР МОДЕЛИ/УРОКА — ЧЁРНЫЙ ТЕКСТ */
-        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            border-radius: 10px !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="select"] span,
-        [data-testid="stSidebar"] div[data-baseweb="select"] p {
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="select"] svg {
-            fill: #000000 !important;
-        }
-
-        /* 7. ЗАГРУЗКА И ОЧИСТКА — БЕЛЫЙ ТЕКСТ */
+        /* ЗАГРУЗКА ФАЙЛОВ В ВИДЕ ПЛЮСА */
         [data-testid="stFileUploadDropzone"] {
-            background-color: #1e1e1e !important;
-            border-radius: 10px !important;
+            border: 2px dashed #00ffcc !important;
+            background: rgba(0,0,0,0.2) !important;
+            border-radius: 50% !important;
+            width: 80px !important;
+            height: 80px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin: 0 auto !important;
         }
-        [data-testid="stFileUploadDropzone"] p, 
-        [data-testid="stFileUploadDropzone"] span {
-            color: #ffffff !important;
+        [data-testid="stFileUploadDropzone"]::before {
+            content: "+";
+            font-size: 40px;
+            color: #00ffcc;
         }
-        
-        [data-testid="stSidebar"] .stButton button {
-            background-color: #1e1e1e !important;
-            color: #ffffff !important;
-            width: 100%;
-        }
-        [data-testid="stSidebar"] .stButton button p {
-            color: #ffffff !important;
+        [data-testid="stFileUploadDropzone"] div, [data-testid="stFileUploadDropzone"] small {
+            display: none !important; /* Скрываем текст внутри, оставляем только плюс */
         }
 
-        /* 8. ЧАТ */
-        [data-testid="stChatMessage"] {
-            background-color: rgba(0, 0, 0, 0.75) !important;
-            border-radius: 15px;
+        /* Плавное исчезновение конфетти (через CSS анимацию) */
+        .fade-out {
+            animation: fadeOut 3s forwards;
         }
-        [data-testid="stChatMessage"] p {
-            color: #ffffff !important;
-        }
-        .stChatInputContainer {
-            background-color: rgba(255,255,255,0.95) !important;
-            border-radius: 12px;
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
         }
         </style>
         """, unsafe_allow_html=True)
 
     def render_centered_logo(self, level_name):
         st.markdown(f'''
-        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
-            <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
-            <div style="color: #ccc; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
+        <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
+            <div style="color: #00ffcc; font-size: 14px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
+            <div style="color: white; font-size: 30px; font-weight: 900;">AKYLMAN</div>
         </div>
         ''', unsafe_allow_html=True)
