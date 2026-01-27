@@ -1,60 +1,76 @@
 import streamlit as st
 import time
+from brain import AkylmanBrain
 from interface import AkylmanUI
 
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "auth" not in st.session_state:
+    st.session_state.auth = False
+
 ui = AkylmanUI()
+brain = AkylmanBrain()
 ui.apply_styles()
 
-if "messages_count" not in st.session_state: st.session_state.messages_count = 0
-if "plus_unlocked" not in st.session_state: st.session_state.plus_unlocked = False
-if "show_modal" not in st.session_state: st.session_state.show_modal = False
-
 with st.sidebar:
-    st.title("Управление")
+    st.markdown("### ⊞ УПРАВЛЕНИЕ")
     
-    version = st.selectbox("Версия АКЫЛМАНА", ["PRO", "PLUS"])
-    if version == "PLUS" and not st.session_state.plus_unlocked:
-        st.session_state.show_modal = True
-        
-    lesson = st.selectbox("Выбор урока", ["English", "ICT", "Математика", "Физика", "История", "Биология"])
-    model = st.selectbox("Модель", ["GPT-4o", "Claude 3.5", "Llama 3.1"])
-    
-    st.write("---")
-    st.write("Добавить материалы:")
-    st.file_uploader("", type=["pdf", "txt", "docx"])
-    
-    if st.button("🗑️ Очистить чат"):
-        st.session_state.messages_count = 0
-        st.rerun()
-
-if st.session_state.show_modal:
-    st.markdown('<div class="password-popup">', unsafe_allow_html=True)
-    c1, c2 = st.columns([0.9, 0.1])
-    if c2.button("✖️"):
-        st.session_state.show_modal = False
-        st.rerun()
-    st.subheader("Доступ к PLUS")
-    pwd = st.text_input("Введите пароль", type="password")
-    if st.button("Войти"):
-        if pwd == "7777":
-            st.session_state.plus_unlocked = True
-            st.session_state.show_modal = False
+    if not st.session_state.auth:
+        pw = st.text_input("Пароль для Pro:", type="password")
+        if pw == "AKYLMAN-PRO":
+            st.session_state.auth = True
             st.balloons()
-            st.success("Доступ разрешен!")
-            time.sleep(2)
+            time.sleep(1)
             st.rerun()
-        else:
-            st.error("Пароль не правильный")
-    st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.success("Доступ активен ✅")
+        if st.button("Выйти"):
+            st.session_state.auth = False
+            st.rerun()
 
-ui.render_centered_logo(version)
+    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
+    active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
+    
+    ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
+    level = levels[ver]
 
-if version == "PRO" and st.session_state.messages_count >= 5:
-    st.error("Лимит версии PRO истёк. Обновление через 12 часов.")
-    st.stop()
+    subject = st.selectbox("Выбери урок:", [
+        "Математика", 
+        "English", 
+        "ICT", 
+        "Физика", 
+        "Биология", 
+        "История"
+    ])
 
-if prompt := st.chat_input("Спроси у Акылмана..."):
-    if version == "PRO": st.session_state.messages_count += 1
-    st.chat_message("user").write(prompt)
+    st.markdown("---")
+    st.subheader("Материалы")
+    st.file_uploader("Загрузить файлы", type=["pdf", "png", "jpg"], accept_multiple_files=True)
+    
+    if st.button("🗑 Очистить чат"):
+        st.session_state.messages = []
+        st.rerun()
+
+ui.render_centered_logo(level)
+
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+
+if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
     with st.chat_message("assistant"):
-        st.write(f"Ответ по предмету {lesson} готов!")
+        res = ""
+        box = st.empty()
+        try:
+            for chunk in brain.generate_response_stream(prompt, level, subject):
+                res += chunk
+                box.markdown(res + "▌")
+            st.session_state.messages.append({"role": "assistant", "content": res})
+            box.markdown(res)
+        except Exception as e:
+            msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
+            box.markdown(msg)
