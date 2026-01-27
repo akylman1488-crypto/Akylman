@@ -5,57 +5,47 @@ from interface import AkylmanUI
 ui = AkylmanUI()
 ui.apply_styles()
 
-if "messages_count" not in st.session_state:
-    st.session_state.messages_count = 0
-if "plus_unlocked" not in st.session_state:
-    st.session_state.plus_unlocked = False
-if "show_password_box" not in st.session_state:
-    st.session_state.show_password_box = False
+if "messages_count" not in st.session_state: st.session_state.messages_count = 0
+if "plus_unlocked" not in st.session_state: st.session_state.plus_unlocked = False
+if "show_modal" not in st.session_state: st.session_state.show_modal = False
 
 with st.sidebar:
     st.title("Управление")
-
+    
     version = st.selectbox("Версия АКЫЛМАНА", ["PRO", "PLUS"])
-
     if version == "PLUS" and not st.session_state.plus_unlocked:
-        st.session_state.show_password_box = True
-    else:
-        st.session_state.show_password_box = False
-
+        st.session_state.show_modal = True
+        
     lesson = st.selectbox("Выбор урока", ["English", "ICT", "Математика", "Физика", "История", "Биология"])
-
-    model = st.selectbox("Модель", ["GPT-4o", "Claude 3.5", "Gemini 1.5 Pro", "Llama 3.1"])
-
+    model = st.selectbox("Модель", ["GPT-4o", "Claude 3.5", "Llama 3.1"])
+    
+    st.write("---")
     st.write("Добавить материалы:")
     st.file_uploader("", type=["pdf", "txt", "docx"])
     
     if st.button("🗑️ Очистить чат"):
-        st.session_state.messages = []
+        st.session_state.messages_count = 0
         st.rerun()
 
-if st.session_state.show_password_box:
-    with st.container():
-        st.markdown('<div class="password-popup">', unsafe_allow_html=True)
-
-        cols = st.columns([0.9, 0.1])
-        if cols[1].button("✖️"):
-            st.session_state.show_password_box = False
+if st.session_state.show_modal:
+    st.markdown('<div class="password-popup">', unsafe_allow_html=True)
+    c1, c2 = st.columns([0.9, 0.1])
+    if c2.button("✖️"):
+        st.session_state.show_modal = False
+        st.rerun()
+    st.subheader("Доступ к PLUS")
+    pwd = st.text_input("Введите пароль", type="password")
+    if st.button("Войти"):
+        if pwd == "7777":
+            st.session_state.plus_unlocked = True
+            st.session_state.show_modal = False
+            st.balloons()
+            st.success("Доступ разрешен!")
+            time.sleep(2)
             st.rerun()
-            
-        st.subheader("Введите пароль для PLUS")
-        pwd = st.text_input("Пароль", type="password", key="plus_pwd")
-        
-        if st.button("Войти"):
-            if pwd == "1234":
-                st.session_state.plus_unlocked = True
-                st.balloons() 
-                st.success("Пароль верный! Доступ открыт.")
-                time.sleep(2)
-                st.rerun()
-            else:
-                st.error("Пароль не правильный!")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.error("Пароль не правильный")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 ui.render_centered_logo(version)
 
@@ -64,6 +54,7 @@ if version == "PRO" and st.session_state.messages_count >= 5:
     st.stop()
 
 if prompt := st.chat_input("Спроси у Акылмана..."):
-    st.session_state.messages_count += 1
+    if version == "PRO": st.session_state.messages_count += 1
     st.chat_message("user").write(prompt)
-    st.chat_message("assistant").write(f"Ответ по предмету {lesson}...")
+    with st.chat_message("assistant"):
+        st.write(f"Ответ по предмету {lesson} готов!")
