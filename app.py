@@ -4,17 +4,13 @@ import datetime
 from openai import OpenAI 
 from interface import AkylmanUI
 
-# --- НАСТРОЙКИ ---
 st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠", layout="wide")
 
-# !!! ВСТАВЬ СЮДА СВОЙ API КЛЮЧ !!!
-# Если ключа нет, бот будет предупреждать об этом.
-MY_API_KEY = "sk-..." 
+MY_API_KEY = "sk-AIzaSyDbJ0E5vDZrGw3C14zFkZjJ0RUx1ClLXHA" 
 
 ui = AkylmanUI()
 ui.apply_styles()
 
-# --- ИНИЦИАЛИЗАЦИЯ ---
 if "messages" not in st.session_state: st.session_state.messages = []
 if "plus_unlocked" not in st.session_state: st.session_state.plus_unlocked = False
 if "pro_count" not in st.session_state: st.session_state.pro_count = 0
