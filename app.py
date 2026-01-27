@@ -1,76 +1,87 @@
 import streamlit as st
 import time
-from brain import AkylmanBrain
+import requests 
 from interface import AkylmanUI
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "auth" not in st.session_state:
-    st.session_state.auth = False
+st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠")
 
 ui = AkylmanUI()
-brain = AkylmanBrain()
 ui.apply_styles()
 
+if "history" not in st.session_state: st.session_state.history = []
+if "msg_count" not in st.session_state: st.session_state.msg_count = 0
+if "is_plus" not in st.session_state: st.session_state.is_plus = False
+if "modal_open" not in st.session_state: st.session_state.modal_open = False
+
 with st.sidebar:
-    st.markdown("### ⊞ УПРАВЛЕНИЕ")
+    st.title("Settings")
+
+    version = st.selectbox("Версия АКЫЛМАНА", ["PRO", "PLUS"])
+    if version == "PLUS" and not st.session_state.is_plus:
+        st.session_state.modal_open = True
+
+    lesson = st.selectbox("Предмет", ["English", "ICT", "Математика", "Физика", "История", "Биология"])
+    model_choice = st.selectbox("Нейросеть", ["GPT-4o", "Claude 3.5", "Llama 3.1"])
     
-    if not st.session_state.auth:
-        pw = st.text_input("Пароль для Pro:", type="password")
-        if pw == "AKYLMAN-PRO":
-            st.session_state.auth = True
-            st.balloons()
-            time.sleep(1)
-            st.rerun()
-    else:
-        st.success("Доступ активен ✅")
-        if st.button("Выйти"):
-            st.session_state.auth = False
-            st.rerun()
-
-    levels = {"🚀 Быстрая (Flash)": "Fast", "🧠 Думающая": "Thinking", "💎 Plus (Умная)": "Plus"}
-    active_lvls = list(levels.keys()) if st.session_state.auth else ["🚀 Быстрая (Flash)", "🧠 Думающая"]
-    
-    ver = st.selectbox("Версия АКЫЛМАНА:", active_lvls)
-    level = levels[ver]
-
-    subject = st.selectbox("Выбери урок:", [
-        "Математика", 
-        "English", 
-        "ICT", 
-        "Физика", 
-        "Биология", 
-        "История"
-    ])
-
     st.markdown("---")
-    st.subheader("Материалы")
-    st.file_uploader("Загрузить файлы", type=["pdf", "png", "jpg"], accept_multiple_files=True)
+    st.write("📁 Загрузить файлы:")
+    st.file_uploader("", type=["pdf", "txt", "docx"])
     
-    if st.button("🗑 Очистить чат"):
-        st.session_state.messages = []
+    if st.button("🗑️ Сбросить всё"):
+        st.session_state.history = []
+        st.session_state.msg_count = 0
         st.rerun()
 
-ui.render_centered_logo(level)
+if st.session_state.modal_open:
+    st.markdown('<div class="password-popup">', unsafe_allow_html=True)
+    if st.button("✖️", help="Закрыть"): 
+        st.session_state.modal_open = False
+        st.rerun()
+    st.subheader("🔐 Доступ к PLUS")
+    user_pwd = st.text_input("Введите секретный код", type="password")
+    if st.button("АКТИВИРОВАТЬ"):
+        if user_pwd == "7777": # Твой секретный пароль
+            st.session_state.is_plus = True
+            st.session_state.modal_open = False
+            st.balloons()
+            st.success("PLUS статус активирован!")
+            time.sleep(2)
+            st.rerun()
+        else:
+            st.error("Неверный код доступа")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-for m in st.session_state.messages:
-    with st.chat_message(m["role"]):
-        st.markdown(m["content"])
+ui.render_header(version)
 
-if prompt := st.chat_input("Напишите АКЫЛМАНУ..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+if version == "PRO" and st.session_state.msg_count >= 5:
+    st.error("🚫 Лимит бесплатных вопросов исчерпан. Ждите 12 часов или используйте PLUS.")
+    st.stop()
+
+for chat in st.session_state.history:
+    with st.chat_message(chat["role"]):
+        st.markdown(chat["content"])
+
+if prompt := st.chat_input("Напиши свой вопрос..."):
+    st.session_state.history.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-    
+
     with st.chat_message("assistant"):
-        res = ""
-        box = st.empty()
-        try:
-            for chunk in brain.generate_response_stream(prompt, level, subject):
-                res += chunk
-                box.markdown(res + "▌")
-            st.session_state.messages.append({"role": "assistant", "content": res})
-            box.markdown(res)
-        except Exception as e:
-            msg = "Лимит исчерпан. Подождите немного! 😊" if "429" in str(e) else f"Ошибка: {e}"
-            box.markdown(msg)
+        message_placeholder = st.empty()
+        full_response = ""
+
+        system_prompt = f"Ты - Akylman AI, эксперт по предмету {lesson}. Отвечай профессионально."
+
+        fake_response = f"Анализирую ваш вопрос по {lesson}... Использую модель {model_choice}. Вот ваш ответ: [Здесь будет ответ от API]"
+        
+        for chunk in fake_response.split():
+            full_response += chunk + " "
+            time.sleep(0.05)
+            message_placeholder.markdown(full_response + "▌")
+        
+        message_placeholder.markdown(full_response)
+    
+    st.session_state.history.append({"role": "assistant", "content": full_response})
+   
+    if version == "PRO":
+        st.session_state.msg_count += 1
