@@ -2,3 +2,4 @@ streamlit
 groq
 PyPDF2
 pandas
+pip install openai
