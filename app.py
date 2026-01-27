@@ -1,87 +1,96 @@
 import streamlit as st
 import time
-import requests 
+import datetime
 from interface import AkylmanUI
 
-st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠")
+st.set_page_config(page_title="AKYLMAN AI", page_icon="🧠", layout="wide")
 
 ui = AkylmanUI()
 ui.apply_styles()
 
-if "history" not in st.session_state: st.session_state.history = []
-if "msg_count" not in st.session_state: st.session_state.msg_count = 0
-if "is_plus" not in st.session_state: st.session_state.is_plus = False
-if "modal_open" not in st.session_state: st.session_state.modal_open = False
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "plus_unlocked" not in st.session_state:
+    st.session_state.plus_unlocked = False
+
+if "pro_count" not in st.session_state:
+    st.session_state.pro_count = 0
+if "pro_limit_time" not in st.session_state:
+    st.session_state.pro_limit_time = None
 
 with st.sidebar:
-    st.title("Settings")
+    # 1. ПОЛЕ ПАРОЛЯ (Вверху, черный круг на скрине)
+    st.title("🔐 Доступ")
+    password_input = st.text_input("Введите пароль для Plus", type="password")
+    
+    if password_input:
+        if password_input == "7777": # Твой пароль
+            st.session_state.plus_unlocked = True
+            st.success("✅ Пароль верный!")
+        else:
+            st.error("❌ Пароль неверен")
 
-    version = st.selectbox("Версия АКЫЛМАНА", ["PRO", "PLUS"])
-    if version == "PLUS" and not st.session_state.is_plus:
-        st.session_state.modal_open = True
+    st.write("---")
+
+    available_versions = ["Думающая", "Быстрая", "PRO"]
+    if st.session_state.plus_unlocked:
+        available_versions.append("PLUS")
+        
+    version = st.selectbox("Версия АКЫЛМАНА", available_versions)
 
     lesson = st.selectbox("Предмет", ["English", "ICT", "Математика", "Физика", "История", "Биология"])
-    model_choice = st.selectbox("Нейросеть", ["GPT-4o", "Claude 3.5", "Llama 3.1"])
-    
-    st.markdown("---")
-    st.write("📁 Загрузить файлы:")
-    st.file_uploader("", type=["pdf", "txt", "docx"])
-    
-    if st.button("🗑️ Сбросить всё"):
-        st.session_state.history = []
-        st.session_state.msg_count = 0
-        st.rerun()
 
-if st.session_state.modal_open:
-    st.markdown('<div class="password-popup">', unsafe_allow_html=True)
-    if st.button("✖️", help="Закрыть"): 
-        st.session_state.modal_open = False
+
+    st.write("Материалы:")
+    st.file_uploader("", type=["pdf", "docx", "txt"])
+    
+    if st.button("🗑️ Очистить"):
+        st.session_state.messages = []
         st.rerun()
-    st.subheader("🔐 Доступ к PLUS")
-    user_pwd = st.text_input("Введите секретный код", type="password")
-    if st.button("АКТИВИРОВАТЬ"):
-        if user_pwd == "7777": # Твой секретный пароль
-            st.session_state.is_plus = True
-            st.session_state.modal_open = False
-            st.balloons()
-            st.success("PLUS статус активирован!")
-            time.sleep(2)
-            st.rerun()
-        else:
-            st.error("Неверный код доступа")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 ui.render_header(version)
 
-if version == "PRO" and st.session_state.msg_count >= 5:
-    st.error("🚫 Лимит бесплатных вопросов исчерпан. Ждите 12 часов или используйте PLUS.")
-    st.stop()
+if version == "PRO":
+    if st.session_state.pro_limit_time:
+        elapsed = datetime.datetime.now() - st.session_state.pro_limit_time
+        if elapsed.total_seconds() < 36000: # 10 часов в секундах
+            hours_left = 10 - int(elapsed.total_seconds() / 3600)
+            st.error(f"⛔ Лимит версии PRO исчерпан (5 вопросов). Доступ откроется через {hours_left} ч.")
+            st.stop()
+        else:
+            st.session_state.pro_count = 0
+            st.session_state.pro_limit_time = None
 
-for chat in st.session_state.history:
-    with st.chat_message(chat["role"]):
-        st.markdown(chat["content"])
+    if st.session_state.pro_count >= 5:
+        st.session_state.pro_limit_time = datetime.datetime.now()
+        st.error("⛔ Вы задали 5 вопросов. PRO версия заблокирована на 10 часов.")
+        st.stop()
+
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
 
 if prompt := st.chat_input("Напиши свой вопрос..."):
-    st.session_state.history.append({"role": "user", "content": prompt})
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.write(prompt)
+
+    if version == "PRO":
+        st.session_state.pro_count += 1
 
     with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-
-        system_prompt = f"Ты - Akylman AI, эксперт по предмету {lesson}. Отвечай профессионально."
-
-        fake_response = f"Анализирую ваш вопрос по {lesson}... Использую модель {model_choice}. Вот ваш ответ: [Здесь будет ответ от API]"
-        
-        for chunk in fake_response.split():
-            full_response += chunk + " "
-            time.sleep(0.05)
-            message_placeholder.markdown(full_response + "▌")
-        
-        message_placeholder.markdown(full_response)
+        response_text = f"Это ответ версии **{version}** по предмету **{lesson}**. (Вопрос: {prompt})"
     
-    st.session_state.history.append({"role": "assistant", "content": full_response})
-   
-    if version == "PRO":
-        st.session_state.msg_count += 1
+        display_placeholder = st.empty()
+        full_res = ""
+        for char in response_text:
+            full_res += char
+            time.sleep(0.02)
+            display_placeholder.write(full_res + "▌")
+        display_placeholder.write(full_res)
+        
+    st.session_state.messages.append({"role": "assistant", "content": full_res})
+
+    if version == "PRO" and st.session_state.pro_count >= 5:
+        time.sleep(2)
+        st.rerun()
