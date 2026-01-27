@@ -4,116 +4,91 @@ class AkylmanUI:
     def apply_styles(self):
         st.markdown("""
         <style>
-        /* 1. ФОН */
+        /* ГЛОБАЛЬНЫЙ ФОН */
         .stApp {
             background-image: url("https://cdn.dribbble.com/userupload/12560411/file/original-cb85895710c2c26fabc3ee05308be2b0.jpg?resize=1600x1200");
             background-size: cover;
             background-attachment: fixed;
-            background-position: center;
         }
 
-        /* 2. КНОПКА РАЗВЕРТЫВАНИЯ (СТРЕЛКА) — БЕЛАЯ */
-        [data-testid="stSidebarCollapsedControl"] svg {
-            fill: #ffffff !important;
-            color: #ffffff !important;
-        }
-        
-        header[data-testid="stHeader"] {
-            background-color: transparent !important;
-        }
-        header [data-testid="stHeaderActionElements"] {
-            display: none !important;
-        }
-        footer { visibility: hidden; }
+        /* КНОПКА САЙДБАРА */
+        [data-testid="stSidebarCollapsedControl"] svg { fill: white !important; }
+        header { background: transparent !important; }
 
-        /* 3. САЙДБАР */
+        /* САЙДБАР: ЧИСТЫЙ СТИЛЬ */
         [data-testid="stSidebar"] {
-            background-color: #f0f2f6 !important;
+            background-color: rgba(240, 242, 246, 0.95) !important;
+            border-right: 1px solid rgba(0,0,0,0.1);
         }
-        [data-testid="stSidebar"] h3, 
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] label {
-            color: #000000 !important;
-            font-weight: 700 !important;
-        }
-
-        /* 4. ПАРОЛЬ — БЕЛЫЙ ФОН, ЧЁРНЫЙ ТЕКСТ И ГЛАЗИК */
-        [data-testid="stSidebar"] div[data-baseweb="input"] {
-            background-color: #ffffff !important;
-            border: 1px solid #dcdcdc !important;
-            border-radius: 10px !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="input"] input {
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="input"] svg {
-            fill: #000000 !important;
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] label {
+            color: #1e1e1e !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
 
-        /* 5. СООБЩЕНИЯ ОБ ОШИБКАХ (Неверный пароль) */
-        [data-testid="stNotification"] {
-            background-color: #ff4b4b !important;
-            color: #ffffff !important;
-            border-radius: 10px;
-        }
-        [data-testid="stNotification"] p {
-            color: #ffffff !important;
-        }
-
-        /* 6. ВЫБОР МОДЕЛИ/УРОКА — ЧЁРНЫЙ ТЕКСТ */
-        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            border-radius: 10px !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="select"] span,
-        [data-testid="stSidebar"] div[data-baseweb="select"] p {
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
-        }
-        [data-testid="stSidebar"] div[data-baseweb="select"] svg {
-            fill: #000000 !important;
-        }
-
-        /* 7. ЗАГРУЗКА И ОЧИСТКА — БЕЛЫЙ ТЕКСТ */
-        [data-testid="stFileUploadDropzone"] {
-            background-color: #1e1e1e !important;
-            border-radius: 10px !important;
-        }
-        [data-testid="stFileUploadDropzone"] p, 
-        [data-testid="stFileUploadDropzone"] span {
-            color: #ffffff !important;
-        }
-        
-        [data-testid="stSidebar"] .stButton button {
-            background-color: #1e1e1e !important;
-            color: #ffffff !important;
-            width: 100%;
-        }
-        [data-testid="stSidebar"] .stButton button p {
-            color: #ffffff !important;
-        }
-
-        /* 8. ЧАТ */
-        [data-testid="stChatMessage"] {
-            background-color: rgba(0, 0, 0, 0.75) !important;
-            border-radius: 15px;
-        }
-        [data-testid="stChatMessage"] p {
-            color: #ffffff !important;
-        }
+        /* ПОЛЕ ВВОДА (CHAT INPUT) */
         .stChatInputContainer {
-            background-color: rgba(255,255,255,0.95) !important;
-            border-radius: 12px;
+            background-color: white !important;
+            border-radius: 25px !important;
+            padding: 8px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: 1px solid #eee !important;
+        }
+        .stChatInput textarea { color: #000 !important; }
+
+        /* ЗАГРУЗКА ФАЙЛОВ "ПЛЮСИК" */
+        [data-testid="stFileUploadDropzone"] {
+            border: 3px dashed #00ffcc !important;
+            background: rgba(0, 255, 204, 0.1) !important;
+            border-radius: 50% !important;
+            width: 80px !important;
+            height: 80px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin: 20px auto !important;
+            transition: 0.3s;
+        }
+        [data-testid="stFileUploadDropzone"]:hover { transform: scale(1.1); }
+        [data-testid="stFileUploadDropzone"]::before {
+            content: "+";
+            font-size: 50px;
+            color: #00ffcc;
+        }
+        [data-testid="stFileUploadDropzone"] div, [data-testid="stFileUploadDropzone"] small { display: none !important; }
+
+        /* ОКНО ПАРОЛЯ */
+        .password-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            z-index: 9999;
+            width: 400px;
+            text-align: center;
+            border: 3px solid #00ffcc;
+        }
+
+        /* СТИЛЬ СООБЩЕНИЙ */
+        [data-testid="stChatMessage"] {
+            background-color: rgba(0, 0, 0, 0.7) !important;
+            border-radius: 20px !important;
+            color: white !important;
+            margin-bottom: 15px;
         }
         </style>
         """, unsafe_allow_html=True)
 
-    def render_centered_logo(self, level_name):
+    def render_header(self, version):
         st.markdown(f'''
-        <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.6); border-radius: 20px; margin-bottom: 20px;">
-            <div style="color: #00ffcc; font-size: 18px; font-weight: bold;">🧠 AKYLMAN AI ({level_name})</div>
-            <div style="color: white; font-size: 50px; font-weight: 900; margin: 10px 0;">AKYLMAN</div>
-            <div style="color: #ccc; letter-spacing: 4px; font-size: 11px;">PRESIDENTIAL SCHOOL</div>
+        <div style="text-align: center; padding: 30px; background: rgba(0,0,0,0.7); border-radius: 25px; margin-bottom: 25px;">
+            <div style="color: #00ffcc; font-size: 14px; font-weight: bold;">🧠 AKYLMAN AI ({version})</div>
+            <div style="color: white; font-size: 48px; font-weight: 900; letter-spacing: -1px;">AKYLMAN</div>
+            <div style="color: #888; font-size: 10px; letter-spacing: 5px;">PRESIDENTIAL SCHOOL</div>
         </div>
         ''', unsafe_allow_html=True)
