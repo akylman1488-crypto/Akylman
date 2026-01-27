@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 import datetime
-from openai import OpenAI # Нужно установить: pip install openai
+from openai import OpenAI 
 from interface import AkylmanUI
 
 # --- НАСТРОЙКИ ---
