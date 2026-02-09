@@ -1,4 +1,4 @@
-GOOGLE_API_KEY = "ВСТАВЬ_СВОЙ_КЛЮЧ_ЗДЕСЬ"
+GOOGLE_API_KEY = "AIzaSyBlpahSB8ogFJCzlZp4wFdpGLiXxQRQIHc"
 MODEL_NAME = "gemini-1.5-pro"
 
 SYSTEM_PROMPT = """
