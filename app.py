@@ -1,37 +1,30 @@
+import streamlit as st
 import brain
-import storage
-import interface
-import effects
 import behavior
+import storage
 
 def main():
-    interface.print_header()
-    history = storage.load_history()
+    import interface
+    interface.init_page()
     
-    if not history:
+    if not st.session_state.messages:
         opener = behavior.get_opener()
-        effects.type_writer(f"Akylman: {opener}")
-        history.append({"role": "assistant", "content": opener})
-        storage.save_history(history)
+        st.session_state.messages.append({"role": "assistant", "content": opener})
+        storage.save_history(st.session_state.messages)
 
-    while True:
-        try:
-            user_text = interface.get_user_input()
-            
-            if user_text.lower() in ["выход", "exit"]:
-                break
-                
-            history.append({"role": "user", "content": user_text})
-            effects.show_loader()
-            
-            ai_response = brain.generate_response(history)
-            effects.type_writer(f"Akylman: {ai_response}")
-            
-            history.append({"role": "assistant", "content": ai_response})
-            storage.save_history(history)
+    interface.display_chat()
 
-        except KeyboardInterrupt:
-            break
+    if prompt := st.chat_input("Напиши что-нибудь..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            response = brain.generate_response(st.session_state.messages)
+            st.markdown(response)
+        
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        storage.save_history(st.session_state.messages)
 
 if __name__ == "__main__":
     main()
