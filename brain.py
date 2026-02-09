@@ -9,16 +9,16 @@ def generate_response(history):
         system_instruction=config.SYSTEM_PROMPT
     )
     
-    chat_session = model.start_chat(
-        history=[
-            {"role": "user" if msg["role"] == "user" else "model", "parts": [msg["content"]]}
-            for msg in history[:-1]
-        ]
-    )
+    formatted_history = []
+    for msg in history[:-1]:
+        role = "user" if msg["role"] == "user" else "model"
+        formatted_history.append({"role": role, "parts": [msg["content"]]})
+    
+    chat_session = model.start_chat(history=formatted_history)
     
     try:
         last_message = history[-1]["content"]
         response = chat_session.send_message(last_message)
         return response.text
     except Exception as e:
-        return f"Ошибка Gemini: {str(e)}"
+        return f"Ошибка: {str(e)}"
