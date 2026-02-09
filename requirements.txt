@@ -1,5 +1,2 @@
+google-generativeai
 streamlit
-groq
-PyPDF2
-pandas
-openai
