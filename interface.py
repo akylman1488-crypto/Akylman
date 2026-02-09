@@ -1,10 +1,13 @@
-from colorama import Fore, Style
+import streamlit as st
 
-def get_user_input():
-    print(Fore.GREEN + "\nВы: ", end="")
-    return input(Style.RESET_ALL).strip()
+def init_page():
+    st.set_page_config(page_title="Akylman AI 2.0", page_icon="🧠")
+    st.header("Akylman AI — Твой мудрый наставник")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-def print_header():
-    print(Fore.MAGENTA + "\n" + "="*30)
-    print(Fore.MAGENTA + "   AKYLMAN AI SYSTEM V2.0")
-    print(Fore.MAGENTA + "="*30 + "\n")
+def display_chat():
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
